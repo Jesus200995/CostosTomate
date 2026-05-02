@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <!-- Fondo completo para maskable (zona segura 80% central) -->
+  <rect width="512" height="512" fill="url(#g)"/>
+  <!-- Contenido centrado en zona segura (80% = 410px, offset 51px) -->
+  <g transform="translate(128, 128) scale(2.56)">
+    <!-- Mini corn -->
+    <ellipse cx="42" cy="48" rx="14" ry="26" fill="#fde68a"/>
+    <circle cx="36" cy="38" r="4" fill="#fbbf24"/>
+    <circle cx="45" cy="36" r="4" fill="#fbbf24"/>
+    <circle cx="36" cy="48" r="4" fill="#fbbf24"/>
+    <circle cx="45" cy="46" r="4" fill="#fbbf24"/>
+    <circle cx="36" cy="58" r="4" fill="#fbbf24"/>
+    <circle cx="45" cy="56" r="4" fill="#fbbf24"/>
+    <path d="M34 68 Q38 78 42 80 Q46 78 50 68 Q46 72 42 74 Q38 72 34 68Z" fill="#16a34a"/>
+    <!-- Mini coin -->
+    <circle cx="62" cy="60" r="16" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+    <text x="62" y="66" font-family="Arial" font-size="18" font-weight="bold" fill="#92400e" text-anchor="middle">$</text>
+    <!-- Leaf accent -->
+    <path d="M28 30 Q22 20 30 14 Q28 22 30 28Z" fill="#4ade80"/>
+    <path d="M50 30 Q56 20 48 14 Q50 22 48 28Z" fill="#4ade80"/>
+  </g>
+</svg>

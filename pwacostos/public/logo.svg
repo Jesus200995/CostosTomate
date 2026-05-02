@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="cornGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="coinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGrad)" opacity="0.12"/>
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#bgGrad)" stroke-width="3" opacity="0.3"/>
+
+  <!-- Left leaf -->
+  <path d="M160 310 Q120 260 140 180 Q155 200 165 240 Q170 210 185 175 Q190 220 188 260 Q195 230 210 200 Q205 250 195 290 Z"
+        fill="url(#leafGrad)" filter="url(#shadow)" opacity="0.9"/>
+
+  <!-- Right leaf -->
+  <path d="M310 310 Q350 260 330 180 Q315 200 305 240 Q300 210 285 175 Q280 220 282 260 Q275 230 260 200 Q265 250 275 290 Z"
+        fill="url(#leafGrad)" filter="url(#shadow)" opacity="0.9"/>
+
+  <!-- Corn cob body -->
+  <ellipse cx="235" cy="240" rx="52" ry="100" fill="url(#cornGrad)" filter="url(#shadow)" transform="rotate(-5 235 240)"/>
+
+  <!-- Corn husk wrapping bottom -->
+  <path d="M195 300 Q210 340 235 355 Q260 340 275 300 Q260 320 235 330 Q210 320 195 300 Z"
+        fill="#16a34a" opacity="0.8"/>
+  <path d="M200 310 Q215 345 235 355 Q255 345 270 310 Q255 330 235 338 Q215 330 200 310 Z"
+        fill="#4ade80" opacity="0.6"/>
+
+  <!-- Corn silk (top hair) -->
+  <path d="M220 145 Q215 120 205 100" stroke="#fde68a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M230 142 Q228 115 222 90" stroke="#fbbf24" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M240 140 Q242 112 240 85" stroke="#fde68a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M250 142 Q255 118 260 95" stroke="#fbbf24" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Corn kernels row 1 -->
+  <circle cx="210" cy="190" r="8" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+  <circle cx="228" cy="185" r="8.5" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+  <circle cx="247" cy="185" r="8.5" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+  <circle cx="264" cy="190" r="8" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+
+  <!-- Corn kernels row 2 -->
+  <circle cx="206" cy="210" r="8.5" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+  <circle cx="224" cy="206" r="9" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+  <circle cx="244" cy="206" r="9" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+  <circle cx="262" cy="210" r="8.5" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+
+  <!-- Corn kernels row 3 -->
+  <circle cx="204" cy="232" r="9" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+  <circle cx="223" cy="228" r="9.5" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+  <circle cx="244" cy="228" r="9.5" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+  <circle cx="263" cy="232" r="9" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+
+  <!-- Corn kernels row 4 -->
+  <circle cx="205" cy="254" r="9" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+  <circle cx="224" cy="250" r="9.5" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+  <circle cx="245" cy="250" r="9.5" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+  <circle cx="264" cy="254" r="9" fill="#fbbf24" stroke="#d97706" stroke-width="1"/>
+
+  <!-- Corn kernels row 5 -->
+  <circle cx="208" cy="275" r="8.5" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+  <circle cx="226" cy="272" r="9" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+  <circle cx="246" cy="272" r="9" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+  <circle cx="262" cy="275" r="8.5" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+
+  <!-- Coin (money) overlapping bottom-right -->
+  <g filter="url(#shadow)" transform="translate(300, 300)">
+    <!-- Coin body -->
+    <ellipse cx="0" cy="8" rx="50" ry="50" fill="#b45309" opacity="0.5"/>
+    <circle cx="0" cy="0" r="50" fill="url(#coinGrad)" stroke="#d97706" stroke-width="3"/>
+    <circle cx="0" cy="0" r="42" fill="none" stroke="#d97706" stroke-width="2" opacity="0.5"/>
+    <circle cx="0" cy="0" r="38" fill="none" stroke="#fde68a" stroke-width="1" opacity="0.3"/>
+
+    <!-- Dollar sign on coin -->
+    <text x="0" y="8" font-family="Arial,sans-serif" font-size="42" font-weight="bold"
+          fill="#92400e" text-anchor="middle" dominant-baseline="middle" opacity="0.9">$</text>
+    <text x="-1" y="7" font-family="Arial,sans-serif" font-size="42" font-weight="bold"
+          fill="#fefce8" text-anchor="middle" dominant-baseline="middle">$</text>
+
+    <!-- Small shine -->
+    <ellipse cx="-18" cy="-18" rx="12" ry="8" fill="white" opacity="0.25" transform="rotate(-30 -18 -18)"/>
+  </g>
+
+  <!-- Small coins scattered -->
+  <g opacity="0.7">
+    <circle cx="340" cy="380" r="18" fill="url(#coinGrad)" stroke="#d97706" stroke-width="2"/>
+    <text x="340" y="385" font-family="Arial,sans-serif" font-size="16" font-weight="bold"
+          fill="#fefce8" text-anchor="middle">$</text>
+  </g>
+  <g opacity="0.5">
+    <circle cx="280" cy="395" r="14" fill="url(#coinGrad)" stroke="#d97706" stroke-width="1.5"/>
+    <text x="280" y="399" font-family="Arial,sans-serif" font-size="12" font-weight="bold"
+          fill="#fefce8" text-anchor="middle">$</text>
+  </g>
+
+  <!-- App name text -->
+  <text x="256" y="440" font-family="Arial,Helvetica,sans-serif" font-size="36" font-weight="bold"
+        fill="#fbbf24" text-anchor="middle" letter-spacing="4">COSTOS</text>
+  <text x="256" y="468" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="500"
+        fill="#4ade80" text-anchor="middle" letter-spacing="2">CULTIVOS Y PRODUCTOS</text>
+</svg>

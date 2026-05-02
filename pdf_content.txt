@@ -1,0 +1,83 @@
+Preguntas de ingreso de usuarios
+PWA Precios (Sembrando Vida)
+Versión generada: 2026-03-19 19:46
+Este documento lista los campos del ingreso en dos formatos: renglones (1 campo por línea) y puntos
+(agrupado por pantalla/rol).
+A) En renglones (1 campo = 1 renglón)
+11. Pantalla/Sección: Perfil (solo REP_CAC) | Rol: TODOS | Campo (key): tipo_capturista | Label: Tipo de
+capturista | Tipo UI: select (placeholder) | Placeholder: Representante CAC, Miembro de comisión de
+comercialización, Personal de oficinas central
+22. Pantalla/Sección: Primer acceso / Perfil | Rol: TODOS | Campo (key): nombre completo | Label:
+Nombre | Tipo UI: input | Placeholder: Nombre y apellido
+33. Pantalla/Sección: Primer acceso / Perfil | Rol: TODOS | Campo (key): estado | Label: Estado | Tipo UI:
+select (placeholder) | Placeholder: catálogo
+44. Pantalla/Sección: Primer acceso / Perfil | Rol: TODOS | Campo (key): municipio | Label: Municipio | Tipo
+UI: select (depende de estado) | Placeholder: catálogo
+55. Pantalla/Sección: Primer acceso / Perfil | Rol: TODOS | Campo (key): localidad | Label:
+Localidad/Comunidad (opcional) | Tipo UI: input | Placeholder: —
+66. Pantalla/Sección: Primer acceso / Perfil | Rol: TODOS | Campo (key): telefono | Label: Teléfono
+(opcional) | Tipo UI: input | Placeholder: Ej. 7710000000
+77. Pantalla/Sección: Primer acceso / Perfil | Rol: TODOS | Campo (key): consent | Label: Acepto aviso de
+privacidad/uso | Tipo UI: checkbox | Placeholder: Acepto
+88. Pantalla/Sección: Perfil (solo REP_CAC) | Rol: REPRESENTANTE_CAC | Campo (key): cacId | Label:
+CAC ID | Tipo UI: texto / input | Placeholder: CAC_123
+99. Pantalla/Sección: Perfil (solo REP_CAC) | Rol: REPRESENTANTE_CAC | Campo (key): cacNombre |
+Label: Nombre del CAC | Tipo UI: texto | Placeholder: CAC Semillas del Futuro
+10
+10. Pantalla/Sección: Perfil (solo REP_CAC) | Rol: REPRESENTANTE_CAC | Campo (key): territorio |
+Label: Territorio | Tipo UI: select/input (opcional) | Placeholder: catálogo
+11
+11. Pantalla/Sección: Perfil (solo COM_COMERCIALIZACION) | Rol: COM_COMERCIALIZACION | Campo
+(key): rol_comision | Label: Rol dentro de la comisión | Tipo UI: select (placeholder) | Placeholder:
+Coordinación / Integrante / Apoyo / Otro
+12
+12. Pantalla/Sección: Perfil (OFICINAS) | Rol: OFICINAS | Campo (key): correo | Label: Correo institucional
+| Tipo UI: input | Placeholder: nombre@bienestar.gob.mx
+13
+13. Pantalla/Sección: Perfil (OFICINAS) | Rol: OFICINAS | Campo (key): rol_interno | Label: Rol interno |
+Tipo UI: select (placeholder) | Placeholder: Director General, Director de área, Facilitador comunitario, JUD,
+Técnico social, Técnico productivo
+B) En puntos (agrupado por pantalla/rol)
+1) Primer acceso / Perfil (TODOS)
+•
+tipo_capturista (select): Representante CAC / Comisión de comercialización / Oficinas central
+•
+nombre completo (input)
+•
+estado (select catálogo)
+•
+municipio (select depende de estado)
+•
+localidad (input, opcional)
+•
+telefono (input, opcional)
+•
+consent (checkbox): Acepto aviso de privacidad/uso
+2) Sección extra: solo si tipo_capturista = REPRESENTANTE_CAC
+•
+cacId (texto/input) — obligatorio
+•
+cacNombre (texto) — obligatorio
+•
+territorio (select/input opcional)
+3) Sección extra: solo si tipo_capturista = COM_COMERCIALIZACION
+•
+rol_comision (select opcional): Coordinación / Integrante / Apoyo / Otro
+•
+IMPORTANTE: en este rol NO se debe mostrar ni pedir cacId ni cacNombre.
+4) Sección extra: solo si tipo_capturista = OFICINAS
+•
+correo (input): correo institucional (recomendado)
+•
+rol_interno (select opcional): Director General / Director de área / Facilitador comunitario / JUD / Técnico
+social / Técnico productivo
+•
+Nota funcional: este rol no captura precios en la PWA (solo consulta/mensaje).
+C) Resumen rápido (para implementación)
+Rol
+Campos adicionales (además del perfil común)
+REPRESENTANTE_CACcacId, cacNombre, territorio
+COM_COMERCIALIZACION
+rol_comision (sin CAC)
+OFICINAS
+correo, rol_interno (sin captura)
