@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, date
 
 
 class RegisterRequest(BaseModel):
@@ -291,7 +291,7 @@ class CentralOut(BaseModel):
     longitud: Optional[float] = None
     estatus: str
     visible_pwa: bool
-    created_at: Optional[str] = None
+    created_at: Optional[datetime] = None
 
 
 class CentralCreate(BaseModel):
@@ -303,7 +303,7 @@ class CaptoristasCentralOut(BaseModel):
     id: int
     central_id: int
     es_favorita: bool
-    created_at: str
+    created_at: datetime
     nombre_central: str
     tipo: Optional[str] = None
     municipio: Optional[str] = None
@@ -331,7 +331,7 @@ class PropuestaCentralOut(BaseModel):
     longitud: Optional[float] = None
     estatus: str
     motivo_rechazo: Optional[str] = None
-    created_at: str
+    created_at: datetime
 
 
 # ── Jitomate ──
@@ -355,11 +355,11 @@ class ReporteJitomateOut(BaseModel):
     central_id: int
     central_nombre: str
     usuario_id: str
-    fecha: str
+    fecha: date
     corte: str
-    hora_captura: str
+    hora_captura: datetime
     captura_tardia: bool
-    created_at: str
+    created_at: datetime
 
 
 class ReporteJitomateDetalleOut(BaseModel):
@@ -369,12 +369,12 @@ class ReporteJitomateDetalleOut(BaseModel):
     central_estado: Optional[str] = None
     central_municipio: Optional[str] = None
     usuario_id: str
-    fecha: str
+    fecha: date
     corte: str
-    hora_captura: str
+    hora_captura: datetime
     captura_tardia: bool
     observaciones: Optional[str] = None
-    created_at: str
+    created_at: datetime
     precios: List[Dict[str, Any]]
 
 
@@ -384,10 +384,10 @@ class HistorialJitomateItem(BaseModel):
     central_nombre: str
     central_estado: Optional[str] = None
     central_municipio: Optional[str] = None
-    fecha: str
+    fecha: date
     corte: str
     calidad: str
     precio: Optional[float] = None
     sin_dato: bool
     captura_tardia: bool
-    created_at: str
+    created_at: datetime

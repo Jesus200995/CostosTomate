@@ -96,11 +96,11 @@ def create_reporte_jitomate(data: ReporteJitomateCreate, user_id: str = Depends(
         central_id=data.central_id,
         central_nombre=central["nombre_central"],
         usuario_id=user_id,
-        fecha=reporte["fecha"].isoformat(),
+        fecha=reporte["fecha"],
         corte=reporte["corte"],
-        hora_captura=reporte["hora_captura"].isoformat(),
+        hora_captura=reporte["hora_captura"],
         captura_tardia=reporte["captura_tardia"],
-        created_at=reporte["created_at"].isoformat(),
+        created_at=reporte["created_at"],
     )
 
 
@@ -140,11 +140,11 @@ def list_reportes_jitomate(
             central_id=r["central_id"],
             central_nombre=r["nombre_central"],
             usuario_id=str(r["usuario_id"]),
-            fecha=r["fecha"].isoformat(),
+            fecha=r["fecha"],
             corte=r["corte"],
-            hora_captura=r["hora_captura"].isoformat(),
+            hora_captura=r["hora_captura"],
             captura_tardia=r["captura_tardia"],
-            created_at=r["created_at"].isoformat(),
+            created_at=r["created_at"],
         )
         for r in rows
     ]
@@ -180,12 +180,12 @@ def get_reporte_jitomate(reporte_id: int, user_id: str = Depends(get_current_use
         central_estado=reporte["estado"],
         central_municipio=reporte["municipio"],
         usuario_id=str(reporte["usuario_id"]),
-        fecha=reporte["fecha"].isoformat(),
+        fecha=reporte["fecha"],
         corte=reporte["corte"],
-        hora_captura=reporte["hora_captura"].isoformat(),
+        hora_captura=reporte["hora_captura"],
         captura_tardia=reporte["captura_tardia"],
         observaciones=reporte["observaciones"],
-        created_at=reporte["created_at"].isoformat(),
+        created_at=reporte["created_at"],
         precios=[
             {"calidad": p["calidad"], "precio": float(p["precio"]) if p["precio"] else None, "sin_dato": p["sin_dato"]}
             for p in precios
@@ -236,13 +236,13 @@ def historial_jitomate(
             central_nombre=r["nombre_central"],
             central_estado=r["estado"],
             central_municipio=r["municipio"],
-            fecha=r["fecha"].isoformat(),
+            fecha=r["fecha"],
             corte=r["corte"],
             calidad=r["calidad"],
             precio=float(r["precio"]) if r["precio"] else None,
             sin_dato=r["sin_dato"],
             captura_tardia=r["captura_tardia"],
-            created_at=r["created_at"].isoformat(),
+            created_at=r["created_at"],
         )
         for r in rows
     ]

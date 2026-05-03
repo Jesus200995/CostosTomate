@@ -124,7 +124,7 @@ def add_mi_central(data: CentralCreate, user_id: str = Depends(get_current_user_
         id=r["id"],
         central_id=c["id"],
         es_favorita=data.es_favorita,
-        created_at=r["created_at"].isoformat(),
+        created_at=r["created_at"],
         nombre_central=c["nombre_central"],
         tipo=c["tipo"],
         municipio=c["municipio"],
@@ -182,7 +182,7 @@ def proponer_central(data: PropuestaCentralCreate, user_id: str = Depends(get_cu
                 latitud=data.latitud,
                 longitud=data.longitud,
                 estatus=existing["estatus"],
-                created_at=existing["created_at"].isoformat(),
+                created_at=existing["created_at"],
             )
 
         cur.execute(
@@ -203,7 +203,7 @@ def proponer_central(data: PropuestaCentralCreate, user_id: str = Depends(get_cu
         latitud=data.latitud,
         longitud=data.longitud,
         estatus=r["estatus"],
-        created_at=r["created_at"].isoformat(),
+        created_at=r["created_at"],
     )
 
 
@@ -230,7 +230,7 @@ def list_propuestas(user_id: str = Depends(get_current_user_id)):
             longitud=float(r["longitud"]) if r["longitud"] else None,
             estatus=r["estatus"],
             motivo_rechazo=r["motivo_rechazo"],
-            created_at=r["created_at"].isoformat(),
+            created_at=r["created_at"],
         )
         for r in rows
     ]
