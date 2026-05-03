@@ -5,12 +5,12 @@
 
 /* ---- CSS Variables ---- */
 :root {
-  --primary: #e67e00;
-  --primary-light: #f59e0b;
-  --primary-dark: #c2410c;
-  --primary-glow: rgba(245, 158, 11, 0.18);
-  --accent: #16a34a;
-  --accent-light: #22c55e;
+  --primary: #c0392b;
+  --primary-light: #e74c3c;
+  --primary-dark: #922b21;
+  --primary-glow: rgba(192, 57, 43, 0.15);
+  --accent: #c0392b;
+  --accent-light: #e74c3c;
 
   --success: #16a34a;
   --success-bg: rgba(22, 163, 74, 0.1);
@@ -142,27 +142,27 @@ input {
 .auth-bg-shape--1 {
   width: 300px;
   height: 300px;
-  background: #f59e0b;
+  background: #c0392b;
   top: -80px;
   right: -60px;
   animation-delay: 0s;
-  opacity: 0.25;
+  opacity: 0.22;
 }
 
 .auth-bg-shape--2 {
   width: 250px;
   height: 250px;
-  background: #22c55e;
+  background: #e74c3c;
   bottom: -50px;
   left: -80px;
   animation-delay: -4s;
-  opacity: 0.2;
+  opacity: 0.18;
 }
 
 .auth-bg-shape--3 {
   width: 180px;
   height: 180px;
-  background: #eab308;
+  background: #922b21;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -213,7 +213,7 @@ input {
 
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 20px var(--primary-glow); }
-  50% { box-shadow: 0 0 40px var(--primary-glow), 0 0 60px rgba(34, 197, 94, 0.1); }
+  50% { box-shadow: 0 0 40px var(--primary-glow), 0 0 60px rgba(192, 57, 43, 0.15); }
 }
 
 .auth-logo__title {
@@ -343,7 +343,7 @@ input {
 }
 .password-strength__fill--weak { background: var(--danger); }
 .password-strength__fill--medium { background: var(--warning); }
-.password-strength__fill--strong { background: #f59e0b; }
+.password-strength__fill--strong { background: #c0392b; }
 .password-strength__fill--excellent { background: var(--success); }
 
 .password-strength__label {
@@ -667,6 +667,16 @@ input {
 .sidebar__link--danger:hover {
   background: var(--danger-bg);
   color: var(--danger);
+}
+
+.sidebar__link--highlight {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+.sidebar__link--highlight:hover {
+  background: #fef5f5;
+  color: #a93226;
 }
 
 .sidebar__badge {

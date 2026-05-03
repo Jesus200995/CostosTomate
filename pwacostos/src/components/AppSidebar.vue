@@ -31,9 +31,13 @@
           <UserCircle :size="20" />
           <span>Mi Perfil</span>
         </router-link>
-        <router-link to="/mercados" class="sidebar__link" @click="ui.closeSidebar()">
-          <ShoppingBag :size="20" />
-          <span>Mercados</span>
+        <router-link to="/centrales" class="sidebar__link" @click="ui.closeSidebar()">
+          <Building2 :size="20" />
+          <span>Mis Centrales</span>
+        </router-link>
+        <router-link to="/capturar" class="sidebar__link sidebar__link--highlight" @click="ui.closeSidebar()">
+          <Salad :size="20" />
+          <span>Capturar Jitomate</span>
         </router-link>
         <router-link to="/historial" class="sidebar__link" @click="ui.closeSidebar()">
           <ClipboardList :size="20" />
@@ -48,7 +52,7 @@
           <LogOut :size="20" />
           <span>Cerrar Sesión</span>
         </button>
-        <p class="sidebar__version">COSTOS v1.0.0</p>
+        <p class="sidebar__version">COSTOS Tomate v2.0</p>
       </div>
     </aside>
   </Transition>
@@ -60,7 +64,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import {
-  X, Home, ShoppingBag, LogOut, UserCircle, ClipboardList
+  X, Home, LogOut, UserCircle, ClipboardList, Building2, Salad
 } from 'lucide-vue-next'
 
 const router = useRouter()

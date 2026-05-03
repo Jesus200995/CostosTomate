@@ -29,9 +29,15 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: '/mercados',
-      name: 'mercados',
+      path: '/centrales',
+      name: 'centrales',
       component: () => import('@/views/MercadosView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/capturar',
+      name: 'capturar',
+      component: () => import('@/views/CapturaJitomateView.vue'),
       meta: { requiresAuth: true }
     },
     {

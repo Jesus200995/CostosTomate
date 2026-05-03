@@ -19,16 +19,16 @@
 
       <!-- Stats -->
       <div class="stats-grid" :class="{ 'stats-grid--visible': mounted }">
-        <div class="stat-card stat-card--primary" @click="router.push('/mercados')">
+        <div class="stat-card stat-card--primary" @click="router.push('/centrales')">
           <div class="stat-card__icon">
-            <Store :size="22" />
+            <Building2 :size="22" />
           </div>
           <div class="stat-card__info">
-            <span class="stat-card__value">{{ stats.mercados }}</span>
-            <span class="stat-card__label">Mercados</span>
+            <span class="stat-card__value">{{ stats.centrales }}</span>
+            <span class="stat-card__label">Mis Centrales</span>
           </div>
         </div>
-        <div class="stat-card stat-card--accent" @click="router.push('/mercados')">
+        <div class="stat-card stat-card--accent" @click="router.push('/historial')">
           <div class="stat-card__icon">
             <ClipboardList :size="22" />
           </div>
@@ -37,22 +37,22 @@
             <span class="stat-card__label">Reportes</span>
           </div>
         </div>
-        <div class="stat-card stat-card--success" @click="router.push('/mercados')">
+        <div class="stat-card stat-card--success" @click="router.push('/capturar')">
           <div class="stat-card__icon">
-            <ShoppingBasket :size="22" />
+            <Salad :size="22" />
           </div>
           <div class="stat-card__info">
-            <span class="stat-card__value">{{ stats.productos }}</span>
-            <span class="stat-card__label">Productos captados</span>
+            <span class="stat-card__value">{{ stats.capturaHoy }}</span>
+            <span class="stat-card__label">Capturas hoy</span>
           </div>
         </div>
-        <div class="stat-card stat-card--warning" @click="router.push('/mercados')">
+        <div class="stat-card stat-card--warning" @click="router.push('/historial')">
           <div class="stat-card__icon">
             <Calendar :size="22" />
           </div>
           <div class="stat-card__info">
-            <span class="stat-card__value">{{ stats.ultimoReporte || '—' }}</span>
-            <span class="stat-card__label">Último reporte</span>
+            <span class="stat-card__value">{{ stats.ultimoCorte || '—' }}</span>
+            <span class="stat-card__label">Último corte</span>
           </div>
         </div>
       </div>
@@ -64,17 +64,17 @@
           Acciones rápidas
         </h2>
         <div class="quick-actions">
-          <button class="quick-action" @click="router.push('/mercados')">
+          <button class="quick-action" @click="router.push('/capturar')">
             <div class="quick-action__icon quick-action__icon--green">
-              <Store :size="24" />
+              <Salad :size="24" />
             </div>
-            <span>Ir a Mercados</span>
+            <span>Capturar Jitomate</span>
           </button>
-          <button class="quick-action" @click="router.push('/perfil')">
+          <button class="quick-action" @click="router.push('/centrales')">
             <div class="quick-action__icon quick-action__icon--blue">
-              <UserCircle :size="24" />
+              <Building2 :size="24" />
             </div>
-            <span>Mi Perfil</span>
+            <span>Mis Centrales</span>
           </button>
         </div>
       </section>
@@ -95,25 +95,23 @@
             <Inbox :size="48" />
           </div>
           <p class="empty-state__text">Aún no hay reportes</p>
-          <p class="empty-state__hint">Ve a Mercados y captura tu primer reporte de precios</p>
+          <p class="empty-state__hint">Ve a Capturar Jitomate y registra tu primer reporte</p>
         </div>
 
         <div v-else class="activity-list">
-          <div v-for="r in recentReportes" :key="r.id" class="activity-card" @click="router.push('/mercados')">
+          <div v-for="r in recentReportes" :key="r.id" class="activity-card" @click="router.push('/historial')">
             <div class="activity-card__left">
               <div class="activity-card__icon">
                 <FileText :size="18" />
               </div>
               <div class="activity-card__info">
-                <span class="activity-card__mercado">{{ getMercadoNombre(r.mercado_id) }}</span>
-                <span class="activity-card__meta">
-                  {{ r.total_productos }} producto{{ r.total_productos !== 1 ? 's' : '' }}
-                </span>
+                <span class="activity-card__mercado">{{ r.central_nombre }}</span>
+                <span class="activity-card__meta">Jitomate Saladette/huaje · kg</span>
               </div>
             </div>
             <div class="activity-card__right">
-              <span class="activity-badge" :class="r.tipo_precio === 'MENUDEO' ? 'activity-badge--blue' : 'activity-badge--orange'">
-                {{ r.tipo_precio }}
+              <span class="activity-badge" :class="r.corte === 'matutino' ? 'activity-badge--blue' : 'activity-badge--orange'">
+                {{ r.corte }}
               </span>
               <span class="activity-card__date">{{ formatDateShort(r.fecha) }}</span>
             </div>
@@ -158,14 +156,14 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
-import { mercadosService } from '@/services/mercados.service'
-import type { Mercado, ReporteOut } from '@/types'
+import { centralesService, jitomateService } from '@/services/jitomate.service'
+import type { ReporteJitomateOut } from '@/types'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppModal from '@/components/AppModal.vue'
 import AppToast from '@/components/AppToast.vue'
 import {
-  Store, ClipboardList, ShoppingBasket, Calendar,
+  Building2, Salad, ClipboardList, Calendar,
   Zap, UserCircle, LogOut, Clock, Inbox, FileText
 } from 'lucide-vue-next'
 
@@ -177,14 +175,13 @@ const mounted = ref(false)
 const showProfileModal = ref(false)
 const loadingActivity = ref(true)
 
-const mercados = ref<Mercado[]>([])
-const recentReportes = ref<ReporteOut[]>([])
+const recentReportes = ref<ReporteJitomateOut[]>([])
 
 const stats = reactive({
-  mercados: 0,
+  centrales: 0,
   reportes: 0,
-  productos: 0,
-  ultimoReporte: ''
+  capturaHoy: 0,
+  ultimoCorte: ''
 })
 
 const firstName = computed(() => {
@@ -204,10 +201,6 @@ const greetingText = computed(() => {
   return 'Buenas noches'
 })
 
-function getMercadoNombre(id: number): string {
-  return mercados.value.find(m => m.id === id)?.nombre || `Mercado #${id}`
-}
-
 function formatDateShort(iso: string): string {
   return new Date(iso + 'T00:00:00').toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })
 }
@@ -226,23 +219,23 @@ function handleLogout() {
 async function loadDashboard() {
   loadingActivity.value = true
   try {
-    const [m, r] = await Promise.all([
-      mercadosService.getMercados(),
-      mercadosService.getReportes()
+    const hoy = new Date().toISOString().split('T')[0]
+    const [centrales, reportes, reportesHoy] = await Promise.all([
+      centralesService.getMisCentrales(),
+      jitomateService.getReportes(),
+      jitomateService.getReportes({ fecha_desde: hoy, fecha_hasta: hoy }),
     ])
-    mercados.value = m
-    const allReportes = r
 
-    stats.mercados = m.length
-    stats.reportes = allReportes.length
-    stats.productos = allReportes.reduce((sum, rep) => sum + rep.total_productos, 0)
-    if (allReportes.length > 0) {
-      stats.ultimoReporte = formatDateShort(allReportes[0].fecha)
+    stats.centrales = centrales.length
+    stats.reportes = reportes.length
+    stats.capturaHoy = reportesHoy.length
+    if (reportes.length > 0) {
+      stats.ultimoCorte = reportes[0].corte === 'matutino' ? 'Matutino' : 'Mediodía'
     }
 
-    recentReportes.value = allReportes.slice(0, 5)
+    recentReportes.value = reportes.slice(0, 5)
   } catch {
-    // silent — dashboard is best-effort
+    // silent — dashboard es best-effort
   } finally {
     loadingActivity.value = false
   }

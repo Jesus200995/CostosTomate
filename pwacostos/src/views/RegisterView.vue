@@ -75,19 +75,7 @@
           <div v-if="step === 2" key="step2" class="step-content">
             <h3 class="step-title">Datos de perfil</h3>
 
-            <div class="form-group" :class="{ 'form-group--error': errors.tipo_capturista, 'form-group--focus': focused === 'tipo' }">
-              <label class="form-label">Tipo de capturista</label>
-              <div class="form-input-wrapper">
-                <Briefcase :size="20" class="form-icon" />
-                <select v-model="form.tipo_capturista" @focus="focused = 'tipo'" @blur="focused = ''">
-                  <option value="" disabled>Selecciona tu tipo</option>
-                  <option value="REPRESENTANTE_CAC">Representante CAC</option>
-                  <option value="COM_COMERCIALIZACION">Miembro de comisión de comercialización</option>
-                  <option value="OFICINAS">Personal de oficinas central</option>
-                </select>
-              </div>
-              <Transition name="slide-error"><span v-if="errors.tipo_capturista" class="form-error">{{ errors.tipo_capturista }}</span></Transition>
-            </div>
+            <!-- tipo_capturista fijo: CAPTURISTA en este sistema -->
 
             <div class="form-group" :class="{ 'form-group--error': errors.name, 'form-group--focus': focused === 'name' }">
               <label class="form-label">Nombre completo</label>
@@ -369,7 +357,7 @@ const form = reactive({
   password: '',
   confirmPassword: '',
   curp: '',
-  tipo_capturista: '',
+  tipo_capturista: 'CAPTURISTA',
   estado: '',
   municipio: 0,
   localidad: '',

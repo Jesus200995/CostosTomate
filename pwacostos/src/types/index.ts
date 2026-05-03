@@ -11,13 +11,111 @@ export interface User {
   localidad?: string
   telefono?: string
   consent?: boolean
-  cac_id?: string
-  cac_nombre?: string
   territorio?: string
   ruta?: string
-  rol_comision?: string
-  correo_institucional?: string
-  rol_interno?: string
+}
+
+// ── Centrales de Abasto ──
+
+export interface Central {
+  id: number
+  nombre_central: string
+  tipo?: string
+  municipio?: string
+  estado?: string
+  latitud?: number
+  longitud?: number
+  estatus: string
+  visible_pwa: boolean
+  created_at?: string
+}
+
+export interface MiCentral {
+  id: number
+  central_id: number
+  es_favorita: boolean
+  created_at: string
+  nombre_central: string
+  tipo?: string
+  municipio?: string
+  estado?: string
+  latitud?: number
+  longitud?: number
+}
+
+export interface PropuestaCentral {
+  id: number
+  nombre_central: string
+  tipo?: string
+  municipio?: string
+  estado?: string
+  latitud?: number
+  longitud?: number
+  estatus: string
+  motivo_rechazo?: string
+  created_at: string
+}
+
+export interface PropuestaCentralCreate {
+  nombre_central: string
+  tipo?: string
+  municipio: string
+  estado: string
+  latitud: number
+  longitud: number
+}
+
+// ── Jitomate ──
+
+export type Corte = 'matutino' | 'mediodia'
+export type Calidad = 'primera' | 'segunda' | 'tercera'
+
+export interface PrecioCalidad {
+  calidad: Calidad
+  precio?: number
+  sin_dato: boolean
+}
+
+export interface ReporteJitomateCreate {
+  central_id: number
+  fecha: string
+  corte: Corte
+  precios: PrecioCalidad[]
+  observaciones?: string
+}
+
+export interface ReporteJitomateOut {
+  id: number
+  central_id: number
+  central_nombre: string
+  usuario_id: string
+  fecha: string
+  corte: Corte
+  hora_captura: string
+  captura_tardia: boolean
+  created_at: string
+}
+
+export interface ReporteJitomateDetalle extends ReporteJitomateOut {
+  central_estado?: string
+  central_municipio?: string
+  observaciones?: string
+  precios: Array<{ calidad: string; precio: number | null; sin_dato: boolean }>
+}
+
+export interface HistorialJitomateItem {
+  id: number
+  central_id: number
+  central_nombre: string
+  central_estado?: string
+  central_municipio?: string
+  fecha: string
+  corte: Corte
+  calidad: Calidad
+  precio?: number
+  sin_dato: boolean
+  captura_tardia: boolean
+  created_at: string
 }
 
 export interface LoginPayload {

@@ -14,8 +14,7 @@ def register(data: RegisterRequest):
         raise HTTPException(400, "La contraseña debe tener al menos 6 caracteres")
     if not data.consent:
         raise HTTPException(400, "Debes aceptar el aviso de privacidad")
-    if data.tipo_capturista not in ("REPRESENTANTE_CAC", "COM_COMERCIALIZACION", "OFICINAS"):
-        raise HTTPException(400, "Tipo de capturista inválido")
+    data.tipo_capturista = "CAPTURISTA"
     curp = data.curp.upper().strip()
     if len(curp) != 18:
         raise HTTPException(400, "La CURP debe tener exactamente 18 caracteres")
@@ -178,8 +177,7 @@ def update_profile(data: UpdateProfileRequest, user_id: str = Depends(get_curren
         raise HTTPException(400, "La CURP debe tener exactamente 18 caracteres")
     if data.telefono and len(data.telefono.strip()) > 10:
         raise HTTPException(400, "El teléfono debe tener máximo 10 dígitos")
-    if data.tipo_capturista not in ("REPRESENTANTE_CAC", "COM_COMERCIALIZACION", "OFICINAS"):
-        raise HTTPException(400, "Tipo de capturista inválido")
+    data.tipo_capturista = "CAPTURISTA"
 
     with get_db() as conn:
         cur = conn.cursor()

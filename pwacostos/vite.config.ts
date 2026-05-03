@@ -14,10 +14,10 @@ export default defineConfig({
         'logo.svg'
       ],
       manifest: {
-        name: 'COSTOS: Cultivos y Productos',
-        short_name: 'COSTOS',
-        description: 'Gestión de costos de cultivos y productos agrícolas',
-        theme_color: '#e67e00',
+        name: 'COSTOS Tomate: Monitor de Jitomate',
+        short_name: 'CTOMATE',
+        description: 'Monitor especializado de precios de jitomate en centrales de abasto',
+        theme_color: '#c0392b',
         background_color: '#f8fafc',
         display: 'standalone',
         orientation: 'portrait',
@@ -94,7 +94,7 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             form_factor: 'narrow',
-            label: 'COSTOS App'
+            label: 'COSTOS Tomate App'
           }
         ]
       },
@@ -102,7 +102,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/apicostos\.sembrandodatos\.com\/api\/.*/i,
+            urlPattern: /^https:\/\/monitoreo\.geodatos\.com\.mx\/api\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
@@ -142,7 +142,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3002',
         changeOrigin: true
       }
     }

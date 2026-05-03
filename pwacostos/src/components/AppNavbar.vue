@@ -7,8 +7,8 @@
         <span class="burger-line" :class="{ 'burger-line--open': ui.sidebarOpen }"></span>
       </button>
       <div class="navbar__brand">
-        <Wheat :size="22" />
-        <span>COSTOS</span>
+        <Salad :size="22" />
+        <span>COSTOS Tomate</span>
       </div>
       <button class="navbar__action" @click="$emit('search')" aria-label="Buscar">
         <Bell :size="22" />
@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useUiStore } from '@/stores/ui'
-import { Wheat, Bell, UploadCloud, ChevronDown, RefreshCw } from 'lucide-vue-next'
+import { Salad, Bell, UploadCloud, ChevronDown, RefreshCw } from 'lucide-vue-next'
 import { useOnlineStatus, usePendingCount, syncAll } from '@/services/offline'
 
 defineEmits<{ search: [] }>()

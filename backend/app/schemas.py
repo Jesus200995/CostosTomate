@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 
@@ -8,13 +8,12 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     curp: str
-    tipo_capturista: str
+    tipo_capturista: str = "CAPTURISTA"
     estado: str
     municipio: int
     localidad: Optional[str] = None
     telefono: Optional[str] = None
     consent: bool = False
-    # REPRESENTANTE_CAC + COM_COMERCIALIZACION (compartidos)
     cac_id: Optional[str] = None
     cac_nombre: Optional[str] = None
     territorio: Optional[str] = None
@@ -277,4 +276,118 @@ class MercadoPropuestoOut(BaseModel):
     referencia: Optional[str] = None
     observaciones: Optional[str] = None
     status: str
+    created_at: str
+
+
+# ── Centrales de Abasto ──
+
+class CentralOut(BaseModel):
+    id: int
+    nombre_central: str
+    tipo: Optional[str] = None
+    municipio: Optional[str] = None
+    estado: Optional[str] = None
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
+    estatus: str
+    visible_pwa: bool
+    created_at: Optional[str] = None
+
+
+class CentralCreate(BaseModel):
+    central_id: int
+    es_favorita: bool = False
+
+
+class CaptoristasCentralOut(BaseModel):
+    id: int
+    central_id: int
+    es_favorita: bool
+    created_at: str
+    nombre_central: str
+    tipo: Optional[str] = None
+    municipio: Optional[str] = None
+    estado: Optional[str] = None
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
+
+
+class PropuestaCentralCreate(BaseModel):
+    nombre_central: str
+    tipo: Optional[str] = None
+    municipio: str
+    estado: str
+    latitud: float
+    longitud: float
+
+
+class PropuestaCentralOut(BaseModel):
+    id: int
+    nombre_central: str
+    tipo: Optional[str] = None
+    municipio: Optional[str] = None
+    estado: Optional[str] = None
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
+    estatus: str
+    motivo_rechazo: Optional[str] = None
+    created_at: str
+
+
+# ── Jitomate ──
+
+class PrecioCalidadCreate(BaseModel):
+    calidad: str
+    precio: Optional[float] = None
+    sin_dato: bool = False
+
+
+class ReporteJitomateCreate(BaseModel):
+    central_id: int
+    fecha: str
+    corte: str
+    precios: List[PrecioCalidadCreate]
+    observaciones: Optional[str] = None
+
+
+class ReporteJitomateOut(BaseModel):
+    id: int
+    central_id: int
+    central_nombre: str
+    usuario_id: str
+    fecha: str
+    corte: str
+    hora_captura: str
+    captura_tardia: bool
+    created_at: str
+
+
+class ReporteJitomateDetalleOut(BaseModel):
+    id: int
+    central_id: int
+    central_nombre: str
+    central_estado: Optional[str] = None
+    central_municipio: Optional[str] = None
+    usuario_id: str
+    fecha: str
+    corte: str
+    hora_captura: str
+    captura_tardia: bool
+    observaciones: Optional[str] = None
+    created_at: str
+    precios: List[Dict[str, Any]]
+
+
+class HistorialJitomateItem(BaseModel):
+    id: int
+    central_id: int
+    central_nombre: str
+    central_estado: Optional[str] = None
+    central_municipio: Optional[str] = None
+    fecha: str
+    corte: str
+    calidad: str
+    precio: Optional[float] = None
+    sin_dato: bool
+    captura_tardia: bool
     created_at: str
