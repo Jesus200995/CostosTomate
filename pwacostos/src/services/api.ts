@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const api = axios.create({
   baseURL: import.meta.env.PROD
-    ? 'https://monitoreo.geodatos.com.mx/api'
+    ? 'https://adminmonitoreo.geodatos.com.mx/api'
     : '/api',
   headers: {
     'Content-Type': 'application/json'
