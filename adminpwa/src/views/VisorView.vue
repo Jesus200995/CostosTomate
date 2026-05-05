@@ -135,9 +135,9 @@ function addMarkers(data: MapaData) {
     const color = getColor(c)
     const size = c.tiene_reporte ? 16 : 13
     const el = document.createElement('div')
-    el.style.cssText = `width:${size}px;height:${size}px;background:${color};border-radius:50%;border:2.5px solid #fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.35);transition:transform .15s;`
-    el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.4)' })
-    el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)' })
+    el.style.cssText = `width:${size}px;height:${size}px;background:${color};border-radius:50%;border:2.5px solid #fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.35);transition:box-shadow .15s;`
+    el.addEventListener('mouseenter', () => { el.style.boxShadow = `0 0 0 4px ${color}50, 0 2px 8px rgba(0,0,0,0.35)` })
+    el.addEventListener('mouseleave', () => { el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.35)' })
 
     const popup = new mapboxgl.Popup({
       offset: 14, closeButton: true, closeOnClick: false,
@@ -155,9 +155,9 @@ function addMarkers(data: MapaData) {
   for (const p of data.propuestas) {
     if (!p.latitud || !p.longitud) continue
     const el = document.createElement('div')
-    el.style.cssText = 'width:11px;height:11px;background:#F9A825;border-radius:50%;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);transition:transform .15s;'
-    el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.4)' })
-    el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)' })
+    el.style.cssText = 'width:11px;height:11px;background:#F9A825;border-radius:50%;border:2px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);transition:box-shadow .15s;'
+    el.addEventListener('mouseenter', () => { el.style.boxShadow = '0 0 0 4px rgba(249,168,37,0.35), 0 2px 6px rgba(0,0,0,0.3)' })
+    el.addEventListener('mouseleave', () => { el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)' })
 
     const popup = new mapboxgl.Popup({
       offset: 10, closeButton: true, closeOnClick: false,
