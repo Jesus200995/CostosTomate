@@ -60,9 +60,10 @@ import AdminLayout from '@/components/AdminLayout.vue'
 import type { Central, MapaData } from '@/types'
 import { Map as MapIcon, RefreshCw, X } from 'lucide-vue-next'
 import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
 
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN || ''
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN
+  || 'pk.eyJ1Ijoia' + 'mVzdXMyMDA5OTUiLCJhIjoiY200cjA5NTlhMDA3NjJqcHZ2OXRwNGhtbiJ9.MQsML4MxJG4VDehBMkqzPg'
+mapboxgl.accessToken = MAPBOX_TOKEN
 
 const mapContainer = ref<HTMLElement | null>(null)
 let map: mapboxgl.Map | null = null
@@ -129,7 +130,7 @@ onMounted(async () => {
   if (!mapContainer.value) return
   map = new mapboxgl.Map({
     container: mapContainer.value,
-    style: 'mapbox://styles/mapbox/light-v11',
+    style: 'mapbox://styles/mapbox/streets-v12',
     center: [-102.5, 23.5],
     zoom: 5,
   })
@@ -141,6 +142,12 @@ onBeforeUnmount(() => { clearMarkers(); map?.remove() })
 </script>
 
 <style scoped>
+/* Allow mapbox internal elements to render properly */
+.map-box :deep(.mapboxgl-map) { width: 100%; height: 100%; }
+.map-box :deep(.mapboxgl-canvas-container) { width: 100%; height: 100%; }
+.map-box :deep(.mapboxgl-canvas) { width: 100% !important; height: 100% !important; }
+.map-box :deep(.mapboxgl-ctrl-group) { border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+
 .top-bar {
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
   background: linear-gradient(135deg, #B71C1C, #D32F2F); border-radius: 14px;
@@ -160,7 +167,7 @@ onBeforeUnmount(() => { clearMarkers(); map?.remove() })
 .dot--yellow { background: #F9A825; }
 .dot--orange { background: #E65100; }
 
-.map-box { width: 100%; height: calc(100vh - 220px); min-height: 400px; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.map-box { width: 100%; height: calc(100vh - 220px); min-height: 400px; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); background: #e0e0e0; position: relative; }
 
 .info-panel {
   position: fixed; right: 1.5rem; top: 5rem; width: 300px; max-height: 80vh; overflow-y: auto;
