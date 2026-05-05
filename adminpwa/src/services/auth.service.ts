@@ -41,6 +41,10 @@ export const authService = {
     const res = await api.get('/admin/usuarios-pwa')
     return res.data
   },
+  async updateUsuarioPWA(userId: string, data: Record<string, any>): Promise<PWAUser> {
+    const res = await api.put(`/admin/usuarios-pwa/${userId}`, data)
+    return res.data
+  },
   async deleteUsuarioPWA(userId: string): Promise<void> {
     await api.delete(`/admin/usuarios-pwa/${userId}`)
   },
