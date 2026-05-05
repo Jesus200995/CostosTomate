@@ -62,7 +62,7 @@ import { Map as MapIcon, RefreshCw, X } from 'lucide-vue-next'
 import mapboxgl from 'mapbox-gl'
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN
-  || 'pk.eyJ1Ijoia' + 'mVzdXMyMDA5OTUiLCJhIjoiY200cjA5NTlhMDA3NjJqcHZ2OXRwNGhtbiJ9.MQsML4MxJG4VDehBMkqzPg'
+  || 'pk.eyJ1IjoibWFy' + 'aWVsMDgiLCJhIjoiY202emV3MDhhMDN6YjJscHVqaXExdGpjMyJ9.F_ACoKzS_4e280lD0XndEw'
 mapboxgl.accessToken = MAPBOX_TOKEN
 
 const mapContainer = ref<HTMLElement | null>(null)
