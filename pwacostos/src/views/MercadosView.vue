@@ -294,7 +294,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import { centralesService } from '@/services/jitomate.service'
@@ -500,6 +500,14 @@ onMounted(async () => {
     estadosDisponibles.value = estados
   } finally {
     loading.value = false
+  }
+})
+
+watch(showCatalogo, async (isOpen) => {
+  if (isOpen && estadosDisponibles.value.length === 0) {
+    try {
+      estadosDisponibles.value = await centralesService.getEstadosDisponibles()
+    } catch {}
   }
 })
 </script>

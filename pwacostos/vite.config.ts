@@ -8,6 +8,8 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Fuerza al nuevo SW tomar control inmediatamente en todos los dispositivos
+      injectRegister: 'auto',
       includeAssets: [
         'favicon.svg',
         'icons/apple-touch-icon.png',
@@ -25,68 +27,18 @@ export default defineConfig({
         start_url: '/',
         categories: ['business', 'finance', 'productivity'],
         icons: [
-          {
-            src: '/icons/icon-48x48.png',
-            sizes: '48x48',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/icon-72x72.png',
-            sizes: '72x72',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/icon-96x96.png',
-            sizes: '96x96',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/icon-128x128.png',
-            sizes: '128x128',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/icon-144x144.png',
-            sizes: '144x144',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/icon-152x152.png',
-            sizes: '152x152',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/icon-256x256.png',
-            sizes: '256x256',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/icon-384x384.png',
-            sizes: '384x384',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/maskable-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'maskable'
-          },
-          {
-            src: '/icons/maskable-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable'
-          }
+          { src: '/icons/icon-48x48.png', sizes: '48x48', type: 'image/png' },
+          { src: '/icons/icon-72x72.png', sizes: '72x72', type: 'image/png' },
+          { src: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' },
+          { src: '/icons/icon-128x128.png', sizes: '128x128', type: 'image/png' },
+          { src: '/icons/icon-144x144.png', sizes: '144x144', type: 'image/png' },
+          { src: '/icons/icon-152x152.png', sizes: '152x152', type: 'image/png' },
+          { src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-256x256.png', sizes: '256x256', type: 'image/png' },
+          { src: '/icons/icon-384x384.png', sizes: '384x384', type: 'image/png' },
+          { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/maskable-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+          { src: '/icons/maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ],
         screenshots: [
           {
@@ -99,16 +51,25 @@ export default defineConfig({
         ]
       },
       workbox: {
+        // SW toma control inmediato sin esperar cierre de pestañas
+        skipWaiting: true,
+        clientsClaim: true,
+        // Caché de activos estáticos (Vite usa hash en nombres → inmutables)
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Nunca cachear index.html ni sw.js (deben ser siempre frescos)
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
+            // API correcta: monitoreo.geodatos.com.mx
             urlPattern: /^https:\/\/monitoreo\.geodatos\.com\.mx\/api\/.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'api-cache',
+              cacheName: 'api-cache-v2',
+              networkTimeoutSeconds: 10,
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24  // 24h máximo
               },
               cacheableResponse: {
                 statuses: [0, 200]
