@@ -23,15 +23,27 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: '/usuarios',
-      name: 'Usuarios',
-      component: () => import('@/views/UsuariosView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
+      path: '/visor',
+      name: 'Visor',
+      component: () => import('@/views/VisorView.vue'),
+      meta: { requiresAuth: true }
     },
     {
-      path: '/usuarios-pwa',
-      name: 'UsuariosPWA',
-      component: () => import('@/views/UsuariosPWAView.vue'),
+      path: '/reportes',
+      name: 'Reportes',
+      component: () => import('@/views/ReportesView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/alertas',
+      name: 'Alertas',
+      component: () => import('@/views/AlertasView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/centrales',
+      name: 'Centrales',
+      component: () => import('@/views/CentralesView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
@@ -41,15 +53,15 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
-      path: '/visor',
-      name: 'Visor',
-      component: () => import('@/views/VisorView.vue'),
-      meta: { requiresAuth: true }
+      path: '/usuarios',
+      name: 'Usuarios',
+      component: () => import('@/views/UsuariosView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
-      path: '/registros-precios',
-      name: 'RegistrosPrecios',
-      component: () => import('@/views/RegistrosPreciosView.vue'),
+      path: '/capturistas',
+      name: 'Capturistas',
+      component: () => import('@/views/CapturistasView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true }
     },
     {

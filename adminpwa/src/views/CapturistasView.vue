@@ -1,0 +1,88 @@
+<template>
+  <AdminLayout>
+    <div class="top-bar">
+      <h1 class="top-bar__title"><Users :size="22" /> Capturistas PWA</h1>
+      <span class="top-bar__count">{{ usuarios.length }} capturistas</span>
+    </div>
+
+    <div class="filters-bar">
+      <input type="text" v-model="busqueda" class="fi fi-wide" placeholder="Buscar por nombre o email..." />
+    </div>
+
+    <div v-if="loading" class="loading-center"><span class="spinner"></span></div>
+
+    <div v-else class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th><th>Email</th><th>CURP</th><th>Tipo</th>
+            <th>Estado</th><th>Teléfono</th><th>Registro</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="u in filtered" :key="u.id">
+            <td class="td-name">{{ u.name }}</td>
+            <td>{{ u.email }}</td>
+            <td class="td-mono">{{ u.curp || '—' }}</td>
+            <td><span class="badge badge--primary">{{ u.tipo_capturista || 'CAPTURISTA' }}</span></td>
+            <td>{{ u.estado || '—' }}</td>
+            <td>{{ u.telefono || '—' }}</td>
+            <td>{{ formatDate(u.created_at) }}</td>
+          </tr>
+          <tr v-if="!filtered.length"><td colspan="7" class="empty-state">Sin capturistas</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </AdminLayout>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { authService } from '@/services/auth.service'
+import AdminLayout from '@/components/AdminLayout.vue'
+import type { PWAUser } from '@/types'
+import { Users } from 'lucide-vue-next'
+
+const loading = ref(false)
+const usuarios = ref<PWAUser[]>([])
+const busqueda = ref('')
+
+const filtered = computed(() => {
+  if (!busqueda.value) return usuarios.value
+  const q = busqueda.value.toLowerCase()
+  return usuarios.value.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+})
+
+function formatDate(iso?: string) {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+async function load() {
+  loading.value = true
+  try { usuarios.value = await authService.getUsuariosPWA() }
+  catch (e) { console.error(e) }
+  finally { loading.value = false }
+}
+onMounted(load)
+</script>
+
+<style scoped>
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(135deg, #B71C1C, #D32F2F); border-radius: 14px;
+  padding: 1rem 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 4px 16px rgba(183,28,28,0.2);
+}
+.top-bar__title { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+.top-bar__count { font-size: 0.85rem; color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 8px; }
+.filters-bar {
+  display: flex; gap: 0.5rem; margin-bottom: 1rem;
+  background: #fff; padding: 0.75rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.fi { padding: 6px 10px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 0.82rem; }
+.fi-wide { flex: 1; }
+.loading-center { display: flex; justify-content: center; padding: 3rem; }
+.empty-state { text-align: center; padding: 2rem; color: #bbb; }
+.td-name { font-weight: 600; }
+.td-mono { font-family: monospace; font-size: 0.8rem; }
+</style>

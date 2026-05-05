@@ -2,10 +2,8 @@
   <div class="auth-page">
     <div class="auth-card auth-card--wide">
       <div class="auth-header">
-        <div class="auth-logo">
-          <UserPlus :size="40" />
-        </div>
-        <h1>Crear cuenta</h1>
+        <div class="auth-logo">🍅</div>
+        <h1>Crear cuenta — TOMATE Admin</h1>
         <p>Completa tus datos para registrarte</p>
       </div>
 
@@ -180,7 +178,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { UserPlus, Lock, Eye, EyeOff } from 'lucide-vue-next'
+import { Lock, Eye, EyeOff } from 'lucide-vue-next'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -322,7 +320,7 @@ async function handleSubmit() {
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 50%, #ef9a9a 100%);
 }
 
 .auth-card {
@@ -331,7 +329,7 @@ async function handleSubmit() {
   background: #fff;
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 8px 32px rgba(27, 94, 32, 0.12);
+  box-shadow: 0 8px 32px rgba(183, 28, 28, 0.15);
 }
 
 .auth-card--wide {
@@ -346,19 +344,19 @@ async function handleSubmit() {
 .auth-logo {
   width: 72px;
   height: 72px;
-  background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
+  background: linear-gradient(135deg, #B71C1C, #D32F2F);
   border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1rem;
-  color: #fff;
+  font-size: 2.2rem;
 }
 
 .auth-header h1 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1B5E20;
+  color: #B71C1C;
   margin: 0 0 0.35rem;
 }
 
@@ -417,7 +415,7 @@ async function handleSubmit() {
 }
 
 .toggle-password:hover {
-  color: #1B5E20;
+  color: #D32F2F;
 }
 
 .auth-footer {
@@ -432,7 +430,7 @@ async function handleSubmit() {
 }
 
 .auth-footer a {
-  color: #1B5E20;
+  color: #D32F2F;
   font-weight: 600;
   text-decoration: none;
 }

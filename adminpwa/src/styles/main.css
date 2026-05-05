@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════════
-   ADMIN COSTOS - Main Styles
+   ADMIN TOMATE - Monitoreo Jitomate
    ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-  --primary: #4f46e5;
-  --primary-light: #6366f1;
-  --primary-dark: #3730a3;
+  --primary: #D32F2F;
+  --primary-light: #EF5350;
+  --primary-dark: #B71C1C;
   --danger: #c62828;
   --danger-light: #ffebee;
   --warning: #f9a825;
@@ -63,7 +63,7 @@ body {
 .form-input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.12);
 }
 
 .form-input.error {
@@ -174,8 +174,8 @@ body {
 }
 
 .badge--primary {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: #ffebee;
+  color: #c62828;
 }
 
 /* ── Table ── */

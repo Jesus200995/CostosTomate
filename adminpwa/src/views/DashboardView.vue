@@ -1,633 +1,194 @@
 <template>
-  <div class="dashboard-layout">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-logo">
-          <Layers :size="30" />
-        </div>
-        <div class="sidebar-brand">
-          <span class="sidebar-brand__title">COSTOS</span>
-          <span class="sidebar-brand__sub">Panel Admin</span>
-        </div>
+  <AdminLayout>
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div>
+        <h1 class="top-bar__title"><LayoutDashboard :size="22" /> Dashboard Jitomate</h1>
+        <p class="top-bar__desc">Bienvenido, {{ auth.user?.nombre }} — {{ currentDate }}</p>
       </div>
-
-      <nav class="sidebar-nav">
-        <div class="sidebar-nav-label">Menú</div>
-        <router-link to="/" class="nav-item" :class="{ active: $route.path === '/' }">
-          <LayoutDashboard :size="18" />
-          <span>Dashboard</span>
-        </router-link>
-
-        <router-link 
-          v-if="auth.isAdmin"
-          to="/usuarios" 
-          class="nav-item" 
-          :class="{ active: $route.path === '/usuarios' }"
-        >
-          <Users :size="18" />
-          <span>Administradores</span>
-        </router-link>
-
-        <router-link 
-          v-if="auth.isAdmin"
-          to="/usuarios-pwa" 
-          class="nav-item" 
-          :class="{ active: $route.path === '/usuarios-pwa' }"
-        >
-          <Users :size="18" />
-          <span>Usuarios</span>
-        </router-link>
-
-        <router-link
-          v-if="auth.isAdmin"
-          to="/propuestas"
-          class="nav-item"
-          :class="{ active: $route.path === '/propuestas' }"
-        >
-          <Store :size="18" />
-          <span>Propuestas Mercados</span>
-        </router-link>
-
-        <router-link to="/visor" class="nav-item" :class="{ active: $route.path === '/visor' }">
-          <Map :size="18" />
-          <span>Visor de Mapa</span>
-        </router-link>
-        <router-link to="/registros-precios" class="nav-item" :class="{ active: $route.path === '/registros-precios' }">
-          <ClipboardList :size="18" />
-          <span>Registros Precios</span>
-        </router-link>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <div class="user-avatar">
-            {{ userInitials }}
-          </div>
-          <div class="user-details">
-            <span class="user-name">{{ auth.user?.nombre }}</span>
-            <span class="user-role">{{ auth.user?.rol }}</span>
-          </div>
-        </div>
-        <button class="btn-logout" @click="handleLogout">
-          <LogOut :size="18" />
+      <div class="top-bar__actions">
+        <select v-model="filtros.corte" class="f-select" @change="loadDashboard">
+          <option value="">Todos los cortes</option>
+          <option value="matutino">Matutino</option>
+          <option value="mediodia">Mediodía</option>
+        </select>
+        <input type="date" v-model="filtros.fecha" class="f-input" @change="loadDashboard" />
+        <button class="btn-refresh" @click="loadDashboard" :disabled="loading">
+          <RefreshCw :size="16" :class="{ spinning: loading }" />
         </button>
       </div>
-    </aside>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Top Bar -->
-      <div class="top-bar">
-        <div class="top-bar__info">
-          <h1 class="top-bar__title"><LayoutDashboard :size="22" /> Dashboard</h1>
-          <p class="top-bar__desc">Panel de control — Bienvenido, {{ auth.user?.nombre }} {{ auth.user?.apellido_paterno }}</p>
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi--red">
+        <div class="kpi-icon"><Building2 :size="24" /></div>
+        <div><div class="kpi-value">{{ data?.cobertura?.con_reporte || 0 }} / {{ data?.cobertura?.total || 0 }}</div><div class="kpi-label">Cobertura centrales</div></div>
+      </div>
+      <div class="kpi-card kpi--blue">
+        <div class="kpi-icon"><ClipboardList :size="24" /></div>
+        <div><div class="kpi-value">{{ data?.total_reportes || 0 }}</div><div class="kpi-label">Reportes</div></div>
+      </div>
+      <div class="kpi-card kpi--orange">
+        <div class="kpi-icon"><Clock :size="24" /></div>
+        <div><div class="kpi-value">{{ data?.capturas_tardias || 0 }}</div><div class="kpi-label">Capturas tardías</div></div>
+      </div>
+      <div class="kpi-card kpi--amber">
+        <div class="kpi-icon"><AlertTriangle :size="24" /></div>
+        <div><div class="kpi-value">{{ data?.alertas_activas || 0 }}</div><div class="kpi-label">Alertas activas</div></div>
+      </div>
+    </div>
+
+    <!-- Calidades -->
+    <div class="section-grid">
+      <div class="card">
+        <h3 class="card-title">Precios por Calidad</h3>
+        <div v-if="data?.calidades?.length" class="calidades-grid">
+          <div v-for="c in data.calidades" :key="c.calidad" class="calidad-card" :class="'cal-' + c.calidad">
+            <div class="cal-name">{{ c.calidad }}</div>
+            <div class="cal-price">${{ c.promedio.toFixed(2) }}/kg</div>
+            <div class="cal-range">Min ${{ c.minimo.toFixed(2) }} — Max ${{ c.maximo.toFixed(2) }}</div>
+            <div class="cal-datos">{{ c.con_dato }} reportes · {{ c.sin_dato }} sin dato</div>
+          </div>
         </div>
-        <div class="top-bar__right">
-          <span class="top-bar__date">{{ currentDate }}</span>
-        </div>
+        <div v-else class="empty-state">Sin datos de precios aún</div>
       </div>
 
-      <div class="dashboard-grid">
-        <!-- Stats Cards -->
-        <div class="stat-card">
-          <div class="stat-icon stat-icon--primary">
-            <User :size="24" />
-          </div>
-          <div class="stat-info">
-            <span class="stat-value">{{ auth.user?.rol === 'administrador' ? 'Administrador' : 'Usuario' }}</span>
-            <span class="stat-label">Tu rol</span>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon stat-icon--success">
-            <CheckCircle :size="24" />
-          </div>
-          <div class="stat-info">
-            <span class="stat-value stat-value--success">{{ auth.user?.estatus }}</span>
-            <span class="stat-label">Tu estatus</span>
+      <div class="card">
+        <h3 class="card-title">Promedios por Estado</h3>
+        <div v-if="data?.por_estado?.length" class="ranking-list">
+          <div v-for="(e, i) in data.por_estado.slice(0, 15)" :key="e.estado" class="ranking-row">
+            <span class="rank">#{{ i + 1 }}</span>
+            <span class="rank-name">{{ e.estado }}</span>
+            <span class="rank-price">${{ e.promedio.toFixed(2) }}</span>
+            <span class="rank-count">{{ e.centrales_con_reporte }} centrales</span>
           </div>
         </div>
-
-        <div class="stat-card">
-          <div class="stat-icon stat-icon--info">
-            <Calendar :size="24" />
-          </div>
-          <div class="stat-info">
-            <span class="stat-value">{{ formatDate(auth.user?.created_at) }}</span>
-            <span class="stat-label">Fecha de registro</span>
-          </div>
-        </div>
+        <div v-else class="empty-state">Sin datos por estado</div>
       </div>
+    </div>
 
-      <!-- User Profile Card -->
-      <div class="profile-card">
-        <h2>
-          <UserCircle :size="22" />
-          Mi perfil
-        </h2>
-        <div class="profile-grid">
-          <div class="profile-item">
-            <label>Nombre completo</label>
-            <p>{{ auth.user?.nombre }} {{ auth.user?.apellido_paterno }} {{ auth.user?.apellido_materno }}</p>
-          </div>
-          <div class="profile-item">
-            <label>CURP</label>
-            <p>{{ auth.user?.curp }}</p>
-          </div>
-          <div class="profile-item">
-            <label>Correo electrónico</label>
-            <p>{{ auth.user?.correo }}</p>
-          </div>
-          <div class="profile-item">
-            <label>Teléfono</label>
-            <p>{{ auth.user?.telefono }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions for Admin -->
-      <div v-if="auth.isAdmin" class="quick-actions">
-        <h2>
-          <Zap :size="22" />
-          Acciones rápidas
-        </h2>
-        <div class="actions-grid">
-          <router-link to="/usuarios" class="action-card">
-            <Users :size="32" />
-            <span>Gestionar usuarios</span>
-          </router-link>
-        </div>
-      </div>
-    </main>
-  </div>
+    <!-- Quick Actions -->
+    <div class="actions-grid" v-if="auth.isAdmin">
+      <router-link to="/visor" class="action-card"><MapIcon :size="28" /><span>Mapa</span></router-link>
+      <router-link to="/reportes" class="action-card"><ClipboardList :size="28" /><span>Reportes</span></router-link>
+      <router-link to="/centrales" class="action-card"><Building2 :size="28" /><span>Centrales</span></router-link>
+      <router-link to="/capturistas" class="action-card"><Users :size="28" /><span>Capturistas</span></router-link>
+    </div>
+  </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { authService } from '@/services/auth.service'
+import AdminLayout from '@/components/AdminLayout.vue'
+import type { DashboardData } from '@/types'
 import {
-  Layers, LayoutDashboard, Users, LogOut, User, CheckCircle,
-  Calendar, UserCircle, Zap, Map, Store, ClipboardList
+  LayoutDashboard, RefreshCw, Building2, ClipboardList, Clock,
+  AlertTriangle, Map as MapIcon, Users
 } from 'lucide-vue-next'
 
-const router = useRouter()
 const auth = useAuthStore()
+const loading = ref(false)
+const data = ref<DashboardData | null>(null)
+const filtros = reactive({ fecha: '', corte: '' })
 
-const currentDate = computed(() => {
-  return new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-})
+const currentDate = computed(() =>
+  new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+)
 
-onMounted(async () => {
-  if (!auth.isAuthenticated) {
-    await auth.init()
-  }
-})
-
-const userInitials = computed(() => {
-  if (!auth.user) return '?'
-  const n = auth.user.nombre?.charAt(0) || ''
-  const ap = auth.user.apellido_paterno?.charAt(0) || ''
-  return (n + ap).toUpperCase()
-})
-
-function formatDate(iso?: string): string {
-  if (!iso) return '-'
-  return new Date(iso).toLocaleDateString('es-MX', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  })
+async function loadDashboard() {
+  loading.value = true
+  try {
+    const params: Record<string, string> = {}
+    if (filtros.fecha) params.fecha = filtros.fecha
+    if (filtros.corte) params.corte = filtros.corte
+    data.value = await authService.getDashboard(params)
+  } catch (e) { console.error('Dashboard error:', e) }
+  finally { loading.value = false }
 }
 
-function handleLogout() {
-  auth.logout()
-  router.push('/login')
-}
+onMounted(loadDashboard)
 </script>
 
 <style scoped>
-.dashboard-layout {
-  display: flex;
-  min-height: 100vh;
-}
-
-/* ── Sidebar ── */
-.sidebar {
-  width: 260px;
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-  border-right: none;
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  height: 100vh;
-  z-index: 100;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
-  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.35);
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1.25rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-  color: #fff;
-}
-
-.sidebar-logo {
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.sidebar-brand {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
-}
-
-.sidebar-brand__title {
-  font-weight: 800;
-  font-size: 1.15rem;
-  letter-spacing: 0.04em;
-}
-
-.sidebar-brand__sub {
-  font-size: 0.68rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.sidebar-nav {
-  flex: 1;
-  padding: 0.75rem 0.65rem;
-}
-
-.sidebar-nav-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.55);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 0.85rem 0.35rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.55rem 0.85rem;
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.88rem;
-  transition: all 0.15s ease;
-  margin-bottom: 2px;
-  letter-spacing: -0.01em;
-}
-
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-}
-
-.nav-item.active {
-  background: rgba(99, 102, 241, 0.25);
-  color: #fff;
-  font-weight: 600;
-}
-
-.sidebar-footer {
-  padding: 0.85rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.user-avatar {
-  width: 34px;
-  height: 34px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.78rem;
-  letter-spacing: 0.02em;
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-name {
-  font-weight: 600;
-  font-size: 0.82rem;
-  color: #fff;
-  letter-spacing: -0.01em;
-}
-
-.user-role {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: capitalize;
-}
-
-.btn-logout {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-logout:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-}
-
-/* ── Main Content ── */
-.main-content {
-  flex: 1;
-  margin-left: 260px;
-  padding: 0.75rem 2rem 2rem;
-  background: #f5f5f5;
-  min-height: 100vh;
-}
-
-/* ── Top Bar ── */
 .top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-  border-radius: 14px;
-  padding: 1.15rem 1.5rem;
-  margin-bottom: 1.75rem;
-  box-shadow: 0 2px 12px rgba(79, 70, 229, 0.2);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;
+  background: linear-gradient(135deg, #B71C1C, #D32F2F); border-radius: 14px;
+  padding: 1rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 16px rgba(183,28,28,0.2);
 }
-
-.top-bar__title {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.top-bar__title { font-size: 1.3rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+.top-bar__desc { font-size: 0.82rem; color: rgba(255,255,255,0.8); margin: 0.1rem 0 0; text-transform: capitalize; }
+.top-bar__actions { display: flex; align-items: center; gap: 0.5rem; }
+.f-select, .f-input {
+  padding: 6px 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px;
+  font-size: 0.78rem; background: rgba(255,255,255,0.15); color: #fff;
 }
-
-.top-bar__desc {
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0.15rem 0 0;
+.f-select option { color: #333; background: #fff; }
+.btn-refresh {
+  display: flex; align-items: center; padding: 6px; border: none; border-radius: 8px;
+  background: rgba(255,255,255,0.2); color: #fff; cursor: pointer;
 }
+.spinning { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.top-bar__right {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+/* KPIs */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.kpi-card {
+  background: #fff; border-radius: 14px; padding: 1.1rem; display: flex; align-items: center; gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid #e0e0e0;
 }
+.kpi--red { border-left-color: #D32F2F; }
+.kpi--blue { border-left-color: #1976D2; }
+.kpi--orange { border-left-color: #E65100; }
+.kpi--amber { border-left-color: #F9A825; }
+.kpi-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.kpi--red .kpi-icon { background: #ffebee; color: #D32F2F; }
+.kpi--blue .kpi-icon { background: #e3f2fd; color: #1976D2; }
+.kpi--orange .kpi-icon { background: #fff3e0; color: #E65100; }
+.kpi--amber .kpi-icon { background: #fff8e1; color: #F9A825; }
+.kpi-value { font-size: 1.2rem; font-weight: 700; color: #333; }
+.kpi-label { font-size: 0.78rem; color: #888; }
 
-.top-bar__date {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-transform: capitalize;
-  white-space: nowrap;
-}
+/* Sections */
+.section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
+.card { background: #fff; border-radius: 14px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.card-title { font-size: 1rem; font-weight: 700; color: #B71C1C; margin: 0 0 1rem; }
 
-/* ── Stats Grid ── */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 2rem;
-}
+.calidades-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+.calidad-card { border-radius: 12px; padding: 1rem; text-align: center; }
+.cal-primera { background: #e8f5e9; }
+.cal-segunda { background: #fff8e1; }
+.cal-tercera { background: #ffebee; }
+.cal-name { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #555; margin-bottom: 0.3rem; }
+.cal-price { font-size: 1.3rem; font-weight: 800; color: #333; }
+.cal-range { font-size: 0.7rem; color: #777; margin-top: 0.2rem; }
+.cal-datos { font-size: 0.65rem; color: #999; margin-top: 0.3rem; }
 
-.stat-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
+.ranking-list { max-height: 320px; overflow-y: auto; }
+.ranking-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid #f5f5f5; font-size: 0.82rem; }
+.rank { width: 28px; font-weight: 700; color: #D32F2F; text-align: center; }
+.rank-name { flex: 1; color: #333; }
+.rank-price { font-weight: 700; color: #2e7d32; }
+.rank-count { font-size: 0.72rem; color: #999; }
 
-.stat-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+.empty-state { text-align: center; padding: 2rem; color: #bbb; font-size: 0.9rem; }
 
-.stat-icon--primary {
-  background: #e3f2fd;
-  color: #1565c0;
-}
-
-.stat-icon--success {
-  background: #e8f5e9;
-  color: #2e7d32;
-}
-
-.stat-icon--info {
-  background: #fff3e0;
-  color: #e65100;
-}
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #333;
-  text-transform: capitalize;
-}
-
-.stat-value--success {
-  color: #2e7d32;
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  color: #888;
-}
-
-/* ── Profile Card ── */
-.profile-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  margin-bottom: 2rem;
-}
-
-.profile-card h2 {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #4f46e5;
-  margin: 0 0 1.25rem;
-}
-
-.profile-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
-}
-
-.profile-item label {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #888;
-  margin-bottom: 0.25rem;
-  text-transform: uppercase;
-}
-
-.profile-item p {
-  font-size: 0.95rem;
-  color: #333;
-  margin: 0;
-  word-break: break-word;
-}
-
-/* ── Quick Actions ── */
-.quick-actions {
-  background: #fff;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.quick-actions h2 {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #4f46e5;
-  margin: 0 0 1.25rem;
-}
-
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1rem;
-}
-
+/* Actions */
+.actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
 .action-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  background: #f5f5f5;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  text-decoration: none;
-  color: #616161;
-  transition: all 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1.25rem;
+  background: #fff; border-radius: 12px; border: 2px solid transparent; text-decoration: none;
+  color: #616161; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.2s;
 }
+.action-card:hover { border-color: #D32F2F; color: #D32F2F; }
+.action-card span { font-weight: 600; font-size: 0.85rem; }
 
-.action-card:hover {
-  background: #eef2ff;
-  border-color: #4f46e5;
-  color: #4f46e5;
-}
-
-.action-card span {
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .sidebar {
-    width: 68px;
-  }
-
-  .sidebar-header span,
-  .sidebar-brand,
-  .nav-item span,
-  .user-details,
-  .sidebar-nav-label {
-    display: none;
-  }
-
-  .sidebar-header {
-    justify-content: center;
-    padding: 1rem 0.5rem;
-  }
-
-  .sidebar-logo {
-    width: 36px;
-    height: 36px;
-  }
-
-  .nav-item {
-    justify-content: center;
-    padding: 0.6rem 0.5rem;
-  }
-
-  .sidebar-footer {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .user-info {
-    display: none;
-  }
-
-  .main-content {
-    margin-left: 68px;
-  }
-}
-
-@media (max-width: 600px) {
-  .main-content {
-    padding: 1rem;
-  }
-
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 768px) {
+  .section-grid { grid-template-columns: 1fr; }
+  .calidades-grid { grid-template-columns: 1fr; }
+  .top-bar { flex-direction: column; align-items: flex-start; }
+  .top-bar__actions { width: 100%; flex-wrap: wrap; }
 }
 </style>

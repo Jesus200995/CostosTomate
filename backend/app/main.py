@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import auth, catalogos, centrales, jitomate, admin_auth
+from app.routes import auth, catalogos, centrales, jitomate, admin_auth, admin_jitomate
 from app.config import settings
 
 app = FastAPI(title="COSTOS Tomate API", version="2.0.0")
@@ -30,9 +30,10 @@ app.include_router(catalogos.router, prefix="/api/catalogos", tags=["catalogos"]
 app.include_router(centrales.router, prefix="/api/centrales", tags=["centrales"])
 app.include_router(jitomate.router, prefix="/api/jitomate", tags=["jitomate"])
 app.include_router(admin_auth.router, prefix="/api/admin", tags=["admin"])
+app.include_router(admin_jitomate.router, prefix="/api/admin/jitomate", tags=["admin-jitomate"])
 
 
 @app.get("/api/health")
 def health():
     from datetime import datetime, timezone
-    return {"status": "ok", "version": "2.0.0", "sistema": "cosostomate", "timestamp": datetime.now(timezone.utc).isoformat()}
+    return {"status": "ok", "version": "2.0.0", "sistema": "costostomate", "timestamp": datetime.now(timezone.utc).isoformat()}
