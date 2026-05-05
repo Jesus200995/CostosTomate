@@ -17,6 +17,8 @@ app.add_middleware(
         "https://admincostos.sembrandodatos.com",
         "https://jitomate.sembrandodatos.com",
         "https://apijitomate.sembrandodatos.com",
+        "https://monitoreo.geodatos.com.mx",
+        "https://adminmonitoreo.geodatos.com.mx",
     ],
     allow_credentials=True,
     allow_methods=["*"],
