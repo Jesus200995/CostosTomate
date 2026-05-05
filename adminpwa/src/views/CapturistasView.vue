@@ -17,7 +17,7 @@
           <thead>
             <tr>
               <th>Nombre</th><th>Email</th><th>CURP</th><th>Tipo</th>
-              <th>Estado</th><th>Registro</th><th class="th-actions">Acciones</th>
+              <th>Estado / Municipio</th><th>Registro</th><th class="th-actions">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -26,7 +26,7 @@
               <td>{{ u.email }}</td>
               <td class="td-mono">{{ u.curp || '—' }}</td>
               <td><span class="badge badge--primary">{{ u.tipo_capturista || 'CAPTURISTA' }}</span></td>
-              <td>{{ u.estado || '—' }}</td>
+              <td>{{ u.estado || '—' }} / {{ getMuniName(u.municipio) }}</td>
               <td>{{ formatDate(u.created_at) }}</td>
               <td>
                 <div class="actions-cell">
@@ -56,7 +56,7 @@
                 <div class="detail-item"><span class="detail-label">CURP</span><span class="detail-value mono">{{ viewUser.curp || '—' }}</span></div>
                 <div class="detail-item"><span class="detail-label">Tipo</span><span class="detail-value">{{ viewUser.tipo_capturista || '—' }}</span></div>
                 <div class="detail-item"><span class="detail-label">Estado</span><span class="detail-value">{{ viewUser.estado || '—' }}</span></div>
-                <div class="detail-item"><span class="detail-label">Municipio</span><span class="detail-value">{{ viewUser.municipio || '—' }}</span></div>
+                <div class="detail-item"><span class="detail-label">Municipio</span><span class="detail-value">{{ getMuniName(viewUser.municipio) }}</span></div>
                 <div class="detail-item"><span class="detail-label">Localidad</span><span class="detail-value">{{ viewUser.localidad || '—' }}</span></div>
                 <div class="detail-item"><span class="detail-label">Telefono</span><span class="detail-value">{{ viewUser.telefono || '—' }}</span></div>
                 <div class="detail-item"><span class="detail-label">CAC</span><span class="detail-value">{{ viewUser.cac_nombre || '—' }}</span></div>
@@ -87,8 +87,29 @@
                 <div class="fg"><label class="fl">Nombre</label><input v-model="editForm.name" class="finput" /></div>
                 <div class="fg"><label class="fl">Email</label><input v-model="editForm.email" class="finput" type="email" /></div>
                 <div class="fg"><label class="fl">CURP</label><input v-model="editForm.curp" class="finput" /></div>
-                <div class="fg"><label class="fl">Tipo capturista</label><input v-model="editForm.tipo_capturista" class="finput" /></div>
-                <div class="fg"><label class="fl">Estado</label><input v-model="editForm.estado" class="finput" /></div>
+                <div class="fg">
+                  <label class="fl">Tipo capturista</label>
+                  <select v-model="editForm.tipo_capturista" class="finput">
+                    <option value="">— Seleccionar —</option>
+                    <option value="CAPTURISTA">Capturista</option>
+                    <option value="SUPERVISOR">Supervisor</option>
+                    <option value="COORDINADOR">Coordinador</option>
+                  </select>
+                </div>
+                <div class="fg">
+                  <label class="fl">Estado</label>
+                  <select v-model="editForm.estado" class="finput" @change="onEstadoChange">
+                    <option value="">— Seleccionar estado —</option>
+                    <option v-for="e in estados" :key="e.cve_ent" :value="e.nom_ent">{{ e.nom_ent }}</option>
+                  </select>
+                </div>
+                <div class="fg">
+                  <label class="fl">Municipio</label>
+                  <select v-model="editForm.municipio" class="finput" :disabled="!municipios.length">
+                    <option :value="0">— Seleccionar municipio —</option>
+                    <option v-for="m in municipios" :key="m.clave_mun" :value="m.clave_mun">{{ m.nomgeo }}</option>
+                  </select>
+                </div>
                 <div class="fg"><label class="fl">Telefono</label><input v-model="editForm.telefono" class="finput" /></div>
                 <div class="fg"><label class="fl">Localidad</label><input v-model="editForm.localidad" class="finput" /></div>
                 <div class="fg"><label class="fl">CAC nombre</label><input v-model="editForm.cac_nombre" class="finput" /></div>
@@ -157,9 +178,13 @@ const toast = ref<{ text: string; type: string } | null>(null)
 
 const editForm = reactive({
   name: '', email: '', curp: '', tipo_capturista: '', estado: '',
-  telefono: '', localidad: '', cac_nombre: '', territorio: '',
+  municipio: 0 as number, telefono: '', localidad: '', cac_nombre: '', territorio: '',
   ruta: '', correo_institucional: '', rol_interno: ''
 })
+
+const estados = ref<{ cve_ent: string; nom_ent: string }[]>([])
+const municipios = ref<{ clave_mun: number; nomgeo: string; cve_ent: string; territorio: string | null }[]>([])
+const allMunicipiosCache = ref<Map<number, string>>(new Map())
 
 const filtered = computed(() => {
   if (!busqueda.value) return usuarios.value
@@ -179,13 +204,40 @@ function showToast(text: string, type = 'success') {
 
 function openView(u: PWAUser) { viewUser.value = u }
 
-function openEdit(u: PWAUser) {
+function getMuniName(id: number | null | undefined): string {
+  if (!id) return '—'
+  return allMunicipiosCache.value.get(id) || String(id)
+}
+
+async function loadEstados() {
+  try { estados.value = await authService.getEstados() } catch (e) { console.error(e) }
+}
+
+async function loadMunicipios(estadoName: string) {
+  municipios.value = []
+  if (!estadoName) return
+  const est = estados.value.find(e => e.nom_ent === estadoName)
+  if (!est) return
+  try {
+    const data = await authService.getMunicipios(est.cve_ent)
+    municipios.value = data
+    for (const m of data) { allMunicipiosCache.value.set(m.clave_mun, m.nomgeo) }
+  } catch (e) { console.error(e) }
+}
+
+function onEstadoChange() {
+  editForm.municipio = 0
+  loadMunicipios(editForm.estado)
+}
+
+async function openEdit(u: PWAUser) {
   editUser.value = u
   editForm.name = u.name || ''
   editForm.email = u.email || ''
   editForm.curp = u.curp || ''
   editForm.tipo_capturista = u.tipo_capturista || ''
   editForm.estado = u.estado || ''
+  editForm.municipio = u.municipio || 0
   editForm.telefono = u.telefono || ''
   editForm.localidad = u.localidad || ''
   editForm.cac_nombre = u.cac_nombre || ''
@@ -193,6 +245,7 @@ function openEdit(u: PWAUser) {
   editForm.ruta = u.ruta || ''
   editForm.correo_institucional = u.correo_institucional || ''
   editForm.rol_interno = u.rol_interno || ''
+  if (u.estado) await loadMunicipios(u.estado)
 }
 
 async function saveEdit() {
@@ -200,7 +253,10 @@ async function saveEdit() {
   saving.value = true
   try {
     const data: Record<string, any> = {}
-    for (const [k, v] of Object.entries(editForm)) { if (v) data[k] = v }
+    for (const [k, v] of Object.entries(editForm)) {
+      if (k === 'municipio') { if (v) data[k] = v }
+      else if (v) data[k] = v
+    }
     await authService.updateUsuarioPWA(editUser.value.id, data)
     editUser.value = null
     showToast('Capturista actualizado')
@@ -223,10 +279,29 @@ async function confirmDelete() {
   finally { deleting.value = false }
 }
 
+async function loadMuniNamesForUsers(users: PWAUser[]) {
+  const usedEstados = new Set(users.map(u => u.estado).filter(Boolean) as string[])
+  const promises = []
+  for (const estName of usedEstados) {
+    const est = estados.value.find(e => e.nom_ent === estName)
+    if (!est) continue
+    promises.push(
+      authService.getMunicipios(est.cve_ent).then(munis => {
+        for (const m of munis) allMunicipiosCache.value.set(m.clave_mun, m.nomgeo)
+      }).catch(() => {})
+    )
+  }
+  await Promise.all(promises)
+}
+
 async function load() {
   loading.value = true
-  try { usuarios.value = await authService.getUsuariosPWA() }
-  catch (e) { console.error(e) }
+  try {
+    await loadEstados()
+    const users = await authService.getUsuariosPWA()
+    await loadMuniNamesForUsers(users)
+    usuarios.value = users
+  } catch (e) { console.error(e) }
   finally { loading.value = false }
 }
 onMounted(load)
@@ -339,6 +414,8 @@ onMounted(load)
   font-size: 0.88rem; color: #333; background: #fafafa; outline: none; transition: all .15s;
 }
 .finput:focus { border-color: #D32F2F; background: #fff; box-shadow: 0 0 0 3px rgba(211,47,47,0.08); }
+select.finput { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+select.finput:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* Modal buttons */
 .mbtn {

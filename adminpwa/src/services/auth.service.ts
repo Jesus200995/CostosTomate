@@ -49,6 +49,16 @@ export const authService = {
     await api.delete(`/admin/usuarios-pwa/${userId}`)
   },
 
+  // ── Catalogos geo ──
+  async getEstados(): Promise<{ cve_ent: string; nom_ent: string }[]> {
+    const res = await api.get('/catalogos/estados')
+    return res.data
+  },
+  async getMunicipios(cve_ent: string): Promise<{ clave_mun: number; nomgeo: string; cve_ent: string; territorio: string | null }[]> {
+    const res = await api.get('/catalogos/municipios', { params: { cve_ent } })
+    return res.data
+  },
+
   // ── Centrales (admin CRUD) ──
   async getCentrales(): Promise<Central[]> {
     const res = await api.get('/admin/jitomate/centrales')
