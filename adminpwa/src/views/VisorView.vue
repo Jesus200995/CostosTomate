@@ -43,11 +43,27 @@ const markers: mapboxgl.Marker[] = []
 
 const fecha = ref('')
 const corte = ref('')
-const popups: mapboxgl.Popup[] = []
+let activePopup: mapboxgl.Popup | null = null
 
 function clearMarkers() {
   markers.forEach(m => m.remove()); markers.length = 0
-  popups.forEach(p => p.remove()); popups.length = 0
+  if (activePopup) { activePopup.remove(); activePopup = null }
+}
+
+function closeActivePopup() {
+  if (activePopup) { activePopup.remove(); activePopup = null }
+}
+
+// SVG icon helpers (14x14)
+const ICO = {
+  pin: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  check: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  x: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  alert: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  clock: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  building: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M16 14h.01"/></svg>',
+  file: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>',
+  send: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>',
 }
 
 function getColor(c: Central): string {
@@ -56,85 +72,76 @@ function getColor(c: Central): string {
   return '#D32F2F'
 }
 
-function getStatusLabel(c: Central): string {
-  if (c.alertas?.length) return 'ALERTA'
-  if (c.tiene_reporte) return 'CON REPORTE'
-  return 'SIN REPORTE'
+function getStatusBadge(c: Central): { icon: string; label: string } {
+  if (c.alertas?.length) return { icon: ICO.alert, label: 'Alerta' }
+  if (c.tiene_reporte) return { icon: ICO.check, label: 'Con reporte' }
+  return { icon: ICO.x, label: 'Sin reporte' }
 }
 
 function priceCard(label: string, value: number | null | undefined, accent: string): string {
-  const display = value != null ? '<span style="font-size:16px;font-weight:800;color:#222;">$' + Number(value).toFixed(2) + '</span>' : '<span style="font-size:13px;color:#ccc;font-weight:600;">Sin dato</span>'
-  return `<div style="flex:1;min-width:70px;background:#f8f9fa;border-radius:10px;padding:8px 6px;text-align:center;border:1px solid #eee;">
-    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:${accent};font-weight:700;margin-bottom:3px;">${label}</div>
-    ${display}
+  const val = value != null
+    ? `<div style="font-size:15px;font-weight:800;color:#222;margin-top:2px;">$${Number(value).toFixed(2)}</div>`
+    : `<div style="font-size:11px;color:#bbb;font-weight:500;margin-top:4px;">Sin dato</div>`
+  return `<div style="flex:1;background:#f8f9fa;border-radius:8px;padding:7px 4px;text-align:center;">
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:${accent};font-weight:700;">${label}</div>
+    ${val}
   </div>`
 }
 
 function buildPopupHTML(c: Central): string {
   const color = getColor(c)
-  const status = getStatusLabel(c)
-  const statusIcon = c.alertas?.length ? '&#9888;&#65039;' : c.tiene_reporte ? '&#9989;' : '&#10060;'
+  const badge = getStatusBadge(c)
+  const F = 'font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;'
 
-  let html = `<div style="font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;width:280px;">`
+  let html = `<div style="${F}width:272px;">`
 
-  // Header con gradiente
-  html += `<div style="background:linear-gradient(135deg,${color},${color}dd);padding:14px 16px 12px;position:relative;">
-    <div style="font-size:14px;font-weight:800;color:#fff;line-height:1.3;letter-spacing:-0.2px;">${c.nombre_central}</div>
-    <div style="display:flex;align-items:center;gap:6px;margin-top:5px;">
-      <span style="font-size:10px;color:rgba(255,255,255,0.7);">&#128205;</span>
-      <span style="font-size:11px;color:rgba(255,255,255,0.85);font-weight:500;">${c.municipio}, ${c.estado}</span>
-    </div>
-    <div style="position:absolute;top:10px;right:12px;background:rgba(255,255,255,0.2);backdrop-filter:blur(4px);padding:3px 10px;border-radius:20px;">
-      <span style="font-size:10px;color:#fff;font-weight:700;letter-spacing:0.3px;">${statusIcon} ${status}</span>
+  // Header - nombre on its own line, status BELOW on second row, no overlap
+  html += `<div style="background:linear-gradient(135deg,${color},${color}cc);padding:14px 16px 10px;">
+    <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.35;padding-right:4px;">${c.nombre_central}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+      <div style="display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.8);">${ICO.pin}<span style="font-size:10px;font-weight:500;">${c.municipio}, ${c.estado}</span></div>
+      <div style="display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.18);padding:2px 8px;border-radius:10px;color:#fff;">${badge.icon}<span style="font-size:9px;font-weight:600;">${badge.label}</span></div>
     </div>
   </div>`
 
   // Body
-  html += '<div style="padding:12px 14px 10px;">'
+  html += '<div style="padding:10px 14px 8px;">'
 
   if (c.tipo) {
-    html += `<div style="display:flex;align-items:center;gap:4px;margin-bottom:10px;">
-      <span style="font-size:10px;color:#aaa;">&#127981;</span>
-      <span style="font-size:11px;color:#777;font-weight:500;">Tipo: ${c.tipo}</span>
-    </div>`
+    html += `<div style="display:flex;align-items:center;gap:5px;margin-bottom:8px;color:#888;">${ICO.building}<span style="font-size:11px;font-weight:500;">${c.tipo}</span></div>`
   }
 
   if (c.tiene_reporte && c.reporte) {
-    // Corte pill
-    html += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-      <span style="font-size:10px;">&#128338;</span>
-      <span style="background:#f0f0f0;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;color:#555;text-transform:capitalize;">${c.reporte.corte}</span>
-      ${c.reporte.captura_tardia ? '<span style="background:#FFF3E0;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:700;color:#E65100;">&#9888; TARD\u00cdA</span>' : ''}
+    html += `<div style="display:flex;align-items:center;gap:5px;margin-bottom:8px;">
+      <span style="color:#888;">${ICO.clock}</span>
+      <span style="background:#f0f0f0;padding:2px 9px;border-radius:10px;font-size:10px;font-weight:600;color:#555;text-transform:capitalize;">${c.reporte.corte}</span>
+      ${c.reporte.captura_tardia ? '<span style="background:#FFF3E0;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;color:#E65100;">Tard\u00eda</span>' : ''}
     </div>`
 
-    // Price cards grid
-    html += `<div style="display:flex;gap:6px;margin-bottom:8px;">
+    html += `<div style="display:flex;gap:5px;margin-bottom:6px;">
       ${priceCard('1ra', c.reporte.primera, '#2e7d32')}
       ${priceCard('2da', c.reporte.segunda, '#1565C0')}
       ${priceCard('3ra', c.reporte.tercera, '#6A1B9A')}
     </div>`
   } else {
-    html += `<div style="text-align:center;padding:14px 0;">
-      <div style="font-size:24px;margin-bottom:4px;">&#128203;</div>
-      <div style="font-size:12px;color:#aaa;font-weight:500;">Sin reporte para esta fecha</div>
+    html += `<div style="text-align:center;padding:10px 0;color:#bbb;">
+      <div style="margin:0 auto 4px;width:fit-content;">${ICO.file}</div>
+      <div style="font-size:11px;font-weight:500;">Sin reporte para esta fecha</div>
     </div>`
   }
 
-  // Alertas
   if (c.alertas?.length) {
-    html += '<div style="margin-top:6px;padding-top:8px;border-top:1px solid #f0f0f0;">'
+    html += '<div style="padding-top:6px;border-top:1px solid #f0f0f0;">'
     for (const a of c.alertas) {
-      html += `<div style="display:flex;align-items:flex-start;gap:6px;padding:4px 0;">
-        <span style="font-size:10px;flex-shrink:0;margin-top:1px;">&#128308;</span>
-        <div><span style="font-size:11px;font-weight:700;color:#E65100;">${a.tipo}</span><span style="font-size:11px;color:#888;"> &mdash; ${a.descripcion || 'Sin detalle'}</span></div>
+      html += `<div style="display:flex;align-items:center;gap:5px;padding:3px 0;">
+        <span style="color:#E65100;flex-shrink:0;">${ICO.alert}</span>
+        <span style="font-size:10px;"><b style="color:#E65100;">${a.tipo}</b> <span style="color:#999;">${a.descripcion || ''}</span></span>
       </div>`
     }
     html += '</div>'
   }
 
-  // Footer
-  html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid #f5f5f5;">
-    <span style="font-size:9px;color:#ccc;font-weight:500;">&#127813; CostosTomate</span>
+  html += `<div style="display:flex;justify-content:flex-end;margin-top:6px;padding-top:5px;border-top:1px solid #f5f5f5;">
     <span style="font-size:9px;color:#ccc;">${c.latitud?.toFixed(4)}, ${c.longitud?.toFixed(4)}</span>
   </div>`
 
@@ -143,22 +150,21 @@ function buildPopupHTML(c: Central): string {
 }
 
 function buildPropuestaPopupHTML(p: any): string {
-  return `<div style="font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;width:240px;">
-    <div style="background:linear-gradient(135deg,#F9A825,#FFB300);padding:12px 14px;">
-      <div style="font-size:13px;font-weight:800;color:#fff;">${p.nombre_central}</div>
-      <div style="font-size:10px;color:rgba(255,255,255,0.85);margin-top:3px;">&#128205; ${p.municipio}, ${p.estado}</div>
-      <div style="position:absolute;top:8px;right:10px;background:rgba(255,255,255,0.25);backdrop-filter:blur(4px);padding:2px 8px;border-radius:20px;">
-        <span style="font-size:9px;color:#fff;font-weight:700;">&#128204; PROPUESTA</span>
+  const F = 'font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;'
+  return `<div style="${F}width:240px;">
+    <div style="background:linear-gradient(135deg,#F9A825,#FFB300);padding:12px 14px 10px;">
+      <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.3;">${p.nombre_central}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;">
+        <div style="display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.8);">${ICO.pin}<span style="font-size:10px;">${p.municipio}, ${p.estado}</span></div>
+        <div style="display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px;color:#fff;">${ICO.send}<span style="font-size:9px;font-weight:600;">Propuesta</span></div>
       </div>
     </div>
     <div style="padding:10px 14px 8px;">
-      ${p.tipo ? '<div style="display:flex;align-items:center;gap:4px;margin-bottom:6px;"><span style="font-size:10px;color:#aaa;">&#127981;</span><span style="font-size:11px;color:#777;font-weight:500;">Tipo: ' + p.tipo + '</span></div>' : ''}
-      <div style="text-align:center;padding:8px 0;">
-        <div style="font-size:20px;">&#128640;</div>
-        <div style="font-size:11px;color:#aaa;font-weight:500;margin-top:2px;">Pendiente de autorizaci\u00f3n</div>
+      ${p.tipo ? '<div style="display:flex;align-items:center;gap:5px;margin-bottom:6px;color:#888;">' + ICO.building + '<span style="font-size:11px;">' + p.tipo + '</span></div>' : ''}
+      <div style="text-align:center;padding:6px 0;color:#bbb;">
+        <div style="font-size:11px;font-weight:500;">Pendiente de autorizaci\u00f3n</div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid #f5f5f5;">
-        <span style="font-size:9px;color:#ccc;font-weight:500;">&#127813; CostosTomate</span>
+      <div style="display:flex;justify-content:flex-end;padding-top:5px;border-top:1px solid #f5f5f5;">
         <span style="font-size:9px;color:#ccc;">${p.latitud?.toFixed(4)}, ${p.longitud?.toFixed(4)}</span>
       </div>
     </div>
@@ -179,16 +185,17 @@ function addMarkers(data: MapaData) {
     el.addEventListener('mouseleave', () => { el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.35)' })
 
     const popup = new mapboxgl.Popup({
-      offset: 14, closeButton: true, closeOnClick: false,
-      maxWidth: '300px', className: 'popup-central'
+      offset: 16, closeButton: true, closeOnClick: true,
+      maxWidth: '300px'
     }).setHTML(buildPopupHTML(c))
+
+    el.addEventListener('click', () => { closeActivePopup(); popup.addTo(map!); activePopup = popup })
 
     const marker = new mapboxgl.Marker({ element: el })
       .setLngLat([c.longitud, c.latitud])
       .setPopup(popup)
       .addTo(map)
     markers.push(marker)
-    popups.push(popup)
   }
 
   for (const p of data.propuestas) {
@@ -199,16 +206,17 @@ function addMarkers(data: MapaData) {
     el.addEventListener('mouseleave', () => { el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)' })
 
     const popup = new mapboxgl.Popup({
-      offset: 10, closeButton: true, closeOnClick: false,
-      maxWidth: '260px', className: 'popup-propuesta'
+      offset: 14, closeButton: true, closeOnClick: true,
+      maxWidth: '260px'
     }).setHTML(buildPropuestaPopupHTML(p))
+
+    el.addEventListener('click', () => { closeActivePopup(); popup.addTo(map!); activePopup = popup })
 
     const marker = new mapboxgl.Marker({ element: el })
       .setLngLat([p.longitud, p.latitud])
       .setPopup(popup)
       .addTo(map)
     markers.push(marker)
-    popups.push(popup)
   }
 }
 
@@ -262,7 +270,9 @@ onBeforeUnmount(() => { clearMarkers(); map?.remove() })
 .map-box :deep(.mapboxgl-popup-close-button:hover) {
   background: rgba(0,0,0,0.35); color: #fff;
 }
-.map-box :deep(.mapboxgl-popup-tip) { display: none; }
+.map-box :deep(.mapboxgl-popup-tip) {
+  border-width: 10px; margin-top: -1px;
+}
 @keyframes popupIn {
   from { opacity: 0; transform: translateY(6px) scale(0.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
