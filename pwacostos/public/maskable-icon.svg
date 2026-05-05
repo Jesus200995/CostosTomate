@@ -1,29 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#d97706"/>
-      <stop offset="50%" stop-color="#f59e0b"/>
-      <stop offset="100%" stop-color="#22c55e"/>
-    </linearGradient>
-  </defs>
-  <!-- Fondo completo para maskable (zona segura 80% central) -->
-  <rect width="512" height="512" fill="url(#g)"/>
+  <!-- Fondo sólido rojo (maskable: cubre todo el cuadrado) -->
+  <rect width="512" height="512" fill="#c0392b"/>
+
   <!-- Contenido centrado en zona segura (80% = 410px, offset 51px) -->
-  <g transform="translate(128, 128) scale(2.56)">
-    <!-- Mini corn -->
-    <ellipse cx="42" cy="48" rx="14" ry="26" fill="#fde68a"/>
-    <circle cx="36" cy="38" r="4" fill="#fbbf24"/>
-    <circle cx="45" cy="36" r="4" fill="#fbbf24"/>
-    <circle cx="36" cy="48" r="4" fill="#fbbf24"/>
-    <circle cx="45" cy="46" r="4" fill="#fbbf24"/>
-    <circle cx="36" cy="58" r="4" fill="#fbbf24"/>
-    <circle cx="45" cy="56" r="4" fill="#fbbf24"/>
-    <path d="M34 68 Q38 78 42 80 Q46 78 50 68 Q46 72 42 74 Q38 72 34 68Z" fill="#16a34a"/>
-    <!-- Mini coin -->
-    <circle cx="62" cy="60" r="16" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
-    <text x="62" y="66" font-family="Arial" font-size="18" font-weight="bold" fill="#92400e" text-anchor="middle">$</text>
-    <!-- Leaf accent -->
-    <path d="M28 30 Q22 20 30 14 Q28 22 30 28Z" fill="#4ade80"/>
-    <path d="M50 30 Q56 20 48 14 Q50 22 48 28Z" fill="#4ade80"/>
-  </g>
+  <!-- Sombra del tomate -->
+  <ellipse cx="256" cy="350" rx="144" ry="30" fill="rgba(0,0,0,0.18)"/>
+
+  <!-- Cuerpo del tomate -->
+  <ellipse cx="256" cy="280" rx="154" ry="144" fill="#e74c3c"/>
+
+  <!-- Segmentos -->
+  <line x1="256" y1="150" x2="256" y2="410" stroke="#c0392b" stroke-width="8" opacity="0.45"/>
+  <line x1="110" y1="280" x2="402" y2="280" stroke="#c0392b" stroke-width="8" opacity="0.35"/>
+
+  <!-- Brillo principal -->
+  <ellipse cx="196" cy="205" rx="52" ry="36" fill="rgba(255,240,235,0.55)" transform="rotate(-15,196,205)"/>
+  <ellipse cx="250" cy="190" rx="20" ry="14" fill="rgba(255,255,255,0.35)" transform="rotate(-15,250,190)"/>
+
+  <!-- Tallo -->
+  <rect x="243" y="92" width="30" height="80" rx="15" fill="#27ae60"/>
+
+  <!-- Hojas -->
+  <polygon points="256,132 160,110 205,154" fill="#2ecc71"/>
+  <polygon points="256,132 352,110 307,154" fill="#27ae60"/>
+  <polygon points="256,120 234,52 278,52" fill="#2ecc71"/>
 </svg>
