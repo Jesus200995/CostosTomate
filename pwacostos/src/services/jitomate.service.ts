@@ -8,6 +8,16 @@ import type {
 // ── Centrales ──
 
 export const centralesService = {
+  async getEstadosDisponibles(): Promise<string[]> {
+    const { data } = await api.get<string[]>('/centrales/estados-disponibles')
+    return data
+  },
+
+  async getMunicipiosDisponibles(estado: string): Promise<string[]> {
+    const { data } = await api.get<string[]>('/centrales/municipios-disponibles', { params: { estado } })
+    return data
+  },
+
   async getCentrales(params?: { estado?: string; municipio?: string; nombre?: string }): Promise<Central[]> {
     const { data } = await api.get<Central[]>('/centrales', { params })
     return data

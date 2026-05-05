@@ -10,6 +10,36 @@ from app.auth import get_current_user_id
 router = APIRouter()
 
 
+# ── Estados y municipios disponibles en centrales ──
+
+@router.get("/estados-disponibles")
+def list_estados_disponibles(user_id: str = Depends(get_current_user_id)):
+    """Devuelve estados distintos con centrales autorizadas y visibles en PWA."""
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT DISTINCT estado FROM catalogo_centrales
+               WHERE estatus = 'autorizado' AND visible_pwa = TRUE AND estado IS NOT NULL
+               ORDER BY estado"""
+        )
+        return [r["estado"] for r in cur.fetchall()]
+
+
+@router.get("/municipios-disponibles")
+def list_municipios_disponibles(estado: str, user_id: str = Depends(get_current_user_id)):
+    """Devuelve municipios distintos para un estado dado con centrales autorizadas."""
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT DISTINCT municipio FROM catalogo_centrales
+               WHERE estatus = 'autorizado' AND visible_pwa = TRUE
+                 AND estado = %s AND municipio IS NOT NULL
+               ORDER BY municipio""",
+            (estado,),
+        )
+        return [r["municipio"] for r in cur.fetchall()]
+
+
 # ── Catálogo de centrales (público/auth) ──
 
 @router.get("/", response_model=List[CentralOut])

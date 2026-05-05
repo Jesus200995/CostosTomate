@@ -69,11 +69,13 @@ export interface PropuestaCentralCreate {
 
 export type Corte = 'matutino' | 'mediodia'
 export type Calidad = 'primera' | 'segunda' | 'tercera'
+export type Disponibilidad = 'alta' | 'media' | 'baja' | 'no_hay'
 
 export interface PrecioCalidad {
   calidad: Calidad
   precio?: number
   sin_dato: boolean
+  disponibilidad: Disponibilidad
 }
 
 export interface ReporteJitomateCreate {
@@ -114,6 +116,7 @@ export interface HistorialJitomateItem {
   calidad: Calidad
   precio?: number
   sin_dato: boolean
+  disponibilidad?: Disponibilidad
   captura_tardia: boolean
   created_at: string
 }

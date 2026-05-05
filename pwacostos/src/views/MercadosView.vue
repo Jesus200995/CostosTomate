@@ -123,21 +123,42 @@
           </div>
 
           <div class="catalogo-filtros">
+            <!-- Estado (obligatorio, primer filtro) -->
             <div class="filter-row">
+              <label class="filter-label">Estado *</label>
+              <select
+                v-model="filtroEstado"
+                class="input"
+                @change="onEstadoChange"
+              >
+                <option value="">Selecciona un estado...</option>
+                <option v-for="e in estadosDisponibles" :key="e" :value="e">{{ e }}</option>
+              </select>
+            </div>
+
+            <!-- Municipio (dependiente de estado) -->
+            <div class="filter-row">
+              <label class="filter-label">Municipio</label>
+              <select
+                v-model="filtroMunicipio"
+                class="input"
+                :disabled="!filtroEstado || loadingMunicipios"
+                @change="onMunicipioChange"
+              >
+                <option value="">{{ filtroEstado ? 'Todos los municipios' : 'Elige estado primero' }}</option>
+                <option v-for="m in municipiosDisponibles" :key="m" :value="m">{{ m }}</option>
+              </select>
+            </div>
+
+            <!-- Nombre (opcional, refina resultados) -->
+            <div class="filter-row">
+              <label class="filter-label">Nombre (opcional)</label>
               <input
                 v-model="filtroNombre"
                 type="text"
                 class="input"
-                placeholder="Buscar por nombre..."
-                @input="onNombreInput"
-              />
-            </div>
-            <div class="filter-row">
-              <input
-                v-model="filtroEstado"
-                type="text"
-                class="input"
-                placeholder="Filtrar por estado..."
+                placeholder="Refinar por nombre..."
+                :disabled="!filtroEstado"
                 @input="onNombreInput"
               />
             </div>
@@ -148,8 +169,14 @@
             <p>Buscando centrales...</p>
           </div>
 
-          <div v-else-if="catalogoResults.length === 0" class="empty-state" style="padding:2rem;">
-            <p>No se encontraron centrales</p>
+          <div v-else-if="!filtroEstado" class="empty-state" style="padding:2rem;">
+            <MapPin :size="36" />
+            <p>Selecciona un estado para buscar centrales</p>
+            <p class="empty-state__hint">Elige primero el estado, luego podrás filtrar por municipio o nombre.</p>
+          </div>
+
+          <div v-else-if="catalogoResults.length === 0 && filtroEstado" class="empty-state" style="padding:2rem;">
+            <p>No se encontraron centrales en <strong>{{ filtroEstado }}</strong></p>
             <button class="btn btn--outline btn--wrap" style="margin-top:0.75rem;" @click="showCatalogo=false; showProponer=true">
               <Plus :size="16" />
               <span>Proponer central nueva</span>
@@ -298,8 +325,13 @@ const misCentrales = ref<MiCentral[]>([])
 const catalogoResults = ref<Central[]>([])
 const propuestas = ref<PropuestaCentral[]>([])
 
+const estadosDisponibles = ref<string[]>([])
+const municipiosDisponibles = ref<string[]>([])
+const loadingMunicipios = ref(false)
+
 const filtroNombre = ref('')
 const filtroEstado = ref('')
+const filtroMunicipio = ref('')
 
 const propForm = ref({
   nombre_central: '',
@@ -336,17 +368,42 @@ function propStatusLabel(s: string) {
   return 'Pendiente'
 }
 
+async function onEstadoChange() {
+  filtroMunicipio.value = ''
+  municipiosDisponibles.value = []
+  catalogoResults.value = []
+  if (!filtroEstado.value) return
+
+  loadingMunicipios.value = true
+  try {
+    municipiosDisponibles.value = await centralesService.getMunicipiosDisponibles(filtroEstado.value)
+  } catch {
+    municipiosDisponibles.value = []
+  } finally {
+    loadingMunicipios.value = false
+  }
+  await searchCatalogo()
+}
+
+function onMunicipioChange() {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(searchCatalogo, 150)
+}
+
 function onNombreInput() {
+  if (!filtroEstado.value) return
   if (searchTimer) clearTimeout(searchTimer)
   searchTimer = setTimeout(searchCatalogo, 350)
 }
 
 async function searchCatalogo() {
+  if (!filtroEstado.value) { catalogoResults.value = []; return }
   searchingCatalogo.value = true
   try {
     catalogoResults.value = await centralesService.getCentrales({
       nombre: filtroNombre.value || undefined,
       estado: filtroEstado.value || undefined,
+      municipio: filtroMunicipio.value || undefined,
     })
   } catch {
     catalogoResults.value = []
@@ -433,13 +490,14 @@ async function submitPropuesta() {
 
 onMounted(async () => {
   try {
-    const [centrales, props] = await Promise.all([
+    const [centrales, props, estados] = await Promise.all([
       centralesService.getMisCentrales(),
       centralesService.getPropuestas(),
+      centralesService.getEstadosDisponibles(),
     ])
     misCentrales.value = centrales
     propuestas.value = props
-    await searchCatalogo()
+    estadosDisponibles.value = estados
   } finally {
     loading.value = false
   }
@@ -544,12 +602,16 @@ onMounted(async () => {
 }
 .modal-header h2 { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 700; margin: 0; }
 
-.catalogo-filtros { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.catalogo-filtros { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+.filter-row { display: flex; flex-direction: column; gap: 4px; }
+.filter-label { font-size: 0.75rem; font-weight: 600; color: #555; }
 .filter-row .input {
   width: 100%; padding: 10px 12px; border: 1.5px solid #e0e0e0;
-  border-radius: 10px; font-size: 0.88rem; box-sizing: border-box;
+  border-radius: 10px; font-size: 0.88rem; box-sizing: border-box; background: #fff;
+  transition: border-color 0.2s;
 }
 .filter-row .input:focus { outline: none; border-color: #c0392b; }
+.filter-row .input:disabled { background: #f5f5f5; color: #aaa; cursor: not-allowed; }
 
 .catalogo-results { padding: 0 16px; }
 .catalogo-item {

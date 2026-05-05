@@ -340,6 +340,7 @@ class PrecioCalidadCreate(BaseModel):
     calidad: str
     precio: Optional[float] = None
     sin_dato: bool = False
+    disponibilidad: Optional[str] = None  # 'alta', 'media', 'baja', 'no_hay'
 
 
 class ReporteJitomateCreate(BaseModel):
@@ -389,5 +390,6 @@ class HistorialJitomateItem(BaseModel):
     calidad: str
     precio: Optional[float] = None
     sin_dato: bool
+    disponibilidad: Optional[str] = None
     captura_tardia: bool
     created_at: datetime
