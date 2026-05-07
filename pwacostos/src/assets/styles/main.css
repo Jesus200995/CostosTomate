@@ -198,17 +198,24 @@ input {
 }
 
 .auth-logo__icon {
-  width: 72px;
-  height: 72px;
+  width: 88px;
+  height: 88px;
   margin: 0 auto 16px;
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   box-shadow: var(--shadow-glow);
   animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.auth-logo__img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+  display: block;
 }
 
 @keyframes pulse-glow {
@@ -479,6 +486,14 @@ input {
   font-weight: 700;
   font-size: 18px;
   color: var(--primary-dark);
+}
+
+.navbar__brand-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 6px;
+  flex-shrink: 0;
 }
 
 .navbar__burger {

@@ -9,7 +9,7 @@
     <div class="auth-container" :class="{ 'auth-container--visible': mounted }">
       <div class="auth-logo">
         <div class="auth-logo__icon">
-          <Salad :size="32" />
+          <img src="/icono.png" alt="COSTOS Tomate" class="auth-logo__img" />
         </div>
         <h1 class="auth-logo__title">COSTOS Tomate</h1>
         <p class="auth-logo__subtitle">Monitor de Jitomate</p>
@@ -85,7 +85,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
 import {
-  Salad, Mail, Lock, Eye, EyeOff, LogIn,
+  Mail, Lock, Eye, EyeOff, LogIn,
   ArrowRight, Loader2, AlertCircle
 } from 'lucide-vue-next'
 

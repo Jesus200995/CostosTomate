@@ -7,7 +7,7 @@
         <span class="burger-line" :class="{ 'burger-line--open': ui.sidebarOpen }"></span>
       </button>
       <div class="navbar__brand">
-        <Salad :size="22" />
+        <img src="/icono.png" alt="COSTOS Tomate" class="navbar__brand-img" />
         <span>COSTOS Tomate</span>
       </div>
       <button class="navbar__action" @click="$emit('search')" aria-label="Buscar">
@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useUiStore } from '@/stores/ui'
-import { Salad, Bell, UploadCloud, ChevronDown, RefreshCw } from 'lucide-vue-next'
+import { Bell, UploadCloud, ChevronDown, RefreshCw } from 'lucide-vue-next'
 import { useOnlineStatus, usePendingCount, syncAll } from '@/services/offline'
 
 defineEmits<{ search: [] }>()

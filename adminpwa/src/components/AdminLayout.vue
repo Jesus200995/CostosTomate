@@ -5,7 +5,10 @@
       <button class="mobile-menu-btn" @click="sidebarOpen = !sidebarOpen">
         <Menu :size="22" />
       </button>
-      <span class="mobile-title">🍅 TOMATE Admin</span>
+      <span class="mobile-title">
+        <img src="/icono.png" alt="" class="mobile-title-img" />
+        TOMATE Admin
+      </span>
       <button class="mobile-logout" @click="handleLogout"><LogOut :size="18" /></button>
     </div>
 
@@ -15,7 +18,9 @@
     <!-- Sidebar -->
     <aside class="sidebar" :class="{ open: sidebarOpen || !isMobile }">
       <div class="sidebar-header">
-        <div class="sidebar-logo">🍅</div>
+        <div class="sidebar-logo">
+          <img src="/icono.png" alt="TOMATE" class="sidebar-logo-img" />
+        </div>
         <div class="sidebar-brand">
           <span class="sidebar-brand__title">TOMATE</span>
           <span class="sidebar-brand__sub">Panel Admin</span>
@@ -112,7 +117,8 @@ onBeforeUnmount(() => { window.removeEventListener('resize', checkMobile) })
 .mobile-menu-btn, .mobile-logout {
   background: none; border: none; color: #fff; cursor: pointer; display: flex; padding: 4px;
 }
-.mobile-title { font-weight: 700; font-size: 1rem; }
+.mobile-title { font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 6px; }
+.mobile-title-img { width: 24px; height: 24px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
 
 .sidebar-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150;
@@ -130,10 +136,11 @@ onBeforeUnmount(() => { window.removeEventListener('resize', checkMobile) })
   border-bottom: 1px solid rgba(255,255,255,0.1); color: #fff;
 }
 .sidebar-logo {
-  width: 42px; height: 42px; background: linear-gradient(135deg, #D32F2F, #EF5350);
+  width: 42px; height: 42px; background: transparent;
   border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  font-size: 1.4rem; flex-shrink: 0;
+  flex-shrink: 0;
 }
+.sidebar-logo-img { width: 42px; height: 42px; object-fit: contain; border-radius: 12px; display: block; }
 .sidebar-brand { display: flex; flex-direction: column; line-height: 1.15; }
 .sidebar-brand__title { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.04em; color: #fff; }
 .sidebar-brand__sub { font-size: 0.65rem; font-weight: 500; color: rgba(255,255,255,0.6); text-transform: uppercase; }

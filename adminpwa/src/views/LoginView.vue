@@ -2,7 +2,9 @@
   <div class="auth-page">
     <div class="auth-card">
       <div class="auth-header">
-        <div class="auth-logo">🍅</div>
+        <div class="auth-logo">
+          <img src="/icono.png" alt="TOMATE Admin" class="auth-logo-img" />
+        </div>
         <h1>TOMATE Admin</h1>
         <p>Monitoreo de Jitomate — Panel Administrativo</p>
       </div>
@@ -82,9 +84,12 @@ async function handleSubmit() {
 }
 .auth-header { text-align: center; margin-bottom: 2rem; }
 .auth-logo {
-  width: 72px; height: 72px; background: linear-gradient(135deg, #B71C1C, #D32F2F);
+  width: 88px; height: 88px; background: transparent;
   border-radius: 18px; display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 1rem; font-size: 2.2rem;
+  margin: 0 auto 1rem;
+}
+.auth-logo-img {
+  width: 88px; height: 88px; object-fit: contain; border-radius: 18px; display: block;
 }
 .auth-header h1 { font-size: 1.5rem; font-weight: 700; color: #B71C1C; margin: 0 0 0.35rem; }
 .auth-header p { color: #757575; font-size: 0.9rem; }

@@ -11,8 +11,9 @@ export default defineConfig({
       // Fuerza al nuevo SW tomar control inmediatamente en todos los dispositivos
       injectRegister: 'auto',
       includeAssets: [
-        'favicon.svg',
+        'icono.png',
         'icons/apple-touch-icon.png',
+        'favicon.svg',
         'logo.svg'
       ],
       manifest: {
