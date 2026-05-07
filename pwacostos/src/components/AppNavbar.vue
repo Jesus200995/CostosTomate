@@ -7,7 +7,17 @@
         <span class="burger-line" :class="{ 'burger-line--open': ui.sidebarOpen }"></span>
       </button>
       <div class="navbar__brand">
-        <img src="/icono.png" alt="COSTOS Tomate" class="navbar__brand-img" />
+        <span class="navbar__brand-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="32" height="32">
+            <circle cx="20" cy="20" r="20" fill="#c0392b"/>
+            <ellipse cx="20" cy="25" rx="11" ry="9.5" fill="none" stroke="#fff" stroke-width="1.7"/>
+            <line x1="20" y1="15.5" x2="20" y2="10.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M20,16 C17,13 12.5,13.5 11.5,16.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M20,16 C23,13 27.5,13.5 28.5,16.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M20,15.5 C19,12 17,9 15.5,8.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M20,15.5 C21,12 23,9 24.5,8.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </span>
         <span>COSTOS Tomate</span>
       </div>
       <button class="navbar__action" @click="$emit('search')" aria-label="Buscar">

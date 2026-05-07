@@ -6,7 +6,15 @@
         <Menu :size="22" />
       </button>
       <span class="mobile-title">
-        <img src="/icono.png" alt="" class="mobile-title-img" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="26" height="26" style="flex-shrink:0">
+          <circle cx="20" cy="20" r="20" fill="#c0392b"/>
+          <ellipse cx="20" cy="25" rx="11" ry="9.5" fill="none" stroke="#fff" stroke-width="1.7"/>
+          <line x1="20" y1="15.5" x2="20" y2="10.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M20,16 C17,13 12.5,13.5 11.5,16.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M20,16 C23,13 27.5,13.5 28.5,16.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M20,15.5 C19,12 17,9 15.5,8.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M20,15.5 C21,12 23,9 24.5,8.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
         TOMATE Admin
       </span>
       <button class="mobile-logout" @click="handleLogout"><LogOut :size="18" /></button>
@@ -19,7 +27,15 @@
     <aside class="sidebar" :class="{ open: sidebarOpen || !isMobile }">
       <div class="sidebar-header">
         <div class="sidebar-logo">
-          <img src="/icono.png" alt="TOMATE" class="sidebar-logo-img" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="42" height="42">
+            <circle cx="20" cy="20" r="20" fill="#c0392b"/>
+            <ellipse cx="20" cy="25" rx="11" ry="9.5" fill="none" stroke="#fff" stroke-width="1.7"/>
+            <line x1="20" y1="15.5" x2="20" y2="10.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M20,16 C17,13 12.5,13.5 11.5,16.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M20,16 C23,13 27.5,13.5 28.5,16.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M20,15.5 C19,12 17,9 15.5,8.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M20,15.5 C21,12 23,9 24.5,8.5" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
         </div>
         <div class="sidebar-brand">
           <span class="sidebar-brand__title">TOMATE</span>
@@ -118,7 +134,6 @@ onBeforeUnmount(() => { window.removeEventListener('resize', checkMobile) })
   background: none; border: none; color: #fff; cursor: pointer; display: flex; padding: 4px;
 }
 .mobile-title { font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 6px; }
-.mobile-title-img { width: 24px; height: 24px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
 
 .sidebar-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150;
@@ -136,11 +151,8 @@ onBeforeUnmount(() => { window.removeEventListener('resize', checkMobile) })
   border-bottom: 1px solid rgba(255,255,255,0.1); color: #fff;
 }
 .sidebar-logo {
-  width: 42px; height: 42px; background: transparent;
-  border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.sidebar-logo-img { width: 42px; height: 42px; object-fit: contain; border-radius: 12px; display: block; }
 .sidebar-brand { display: flex; flex-direction: column; line-height: 1.15; }
 .sidebar-brand__title { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.04em; color: #fff; }
 .sidebar-brand__sub { font-size: 0.65rem; font-weight: 500; color: rgba(255,255,255,0.6); text-transform: uppercase; }

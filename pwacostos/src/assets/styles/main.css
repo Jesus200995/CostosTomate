@@ -496,6 +496,15 @@ input {
   flex-shrink: 0;
 }
 
+.navbar__brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
 .navbar__burger {
   width: 40px;
   height: 40px;
