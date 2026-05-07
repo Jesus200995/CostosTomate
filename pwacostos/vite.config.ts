@@ -13,8 +13,6 @@ export default defineConfig({
       includeAssets: [
         'icono.png',
         'icons/apple-touch-icon.png',
-        'favicon.svg',
-        'logo.svg'
       ],
       manifest: {
         name: 'COSTOS Tomate: Monitor de Jitomate',
