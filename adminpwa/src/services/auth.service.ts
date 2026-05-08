@@ -90,6 +90,9 @@ export const authService = {
     const res = await api.get('/admin/jitomate/reportes', { params: filtros })
     return res.data
   },
+  async deleteReporte(id: number): Promise<void> {
+    await api.delete(`/admin/jitomate/reportes/${id}`)
+  },
 
   // ── Dashboard ──
   async getDashboard(filtros?: Record<string, any>): Promise<DashboardData> {

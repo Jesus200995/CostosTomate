@@ -429,6 +429,20 @@ def admin_mapa_centrales(
 # ALERTAS
 # ═══════════════════════════════════════════════════════════════════
 
+@router.delete("/reportes/{reporte_id}")
+def admin_delete_reporte(reporte_id: int, token: str):
+    """Eliminar reporte de jitomate y sus precios por calidad asociados."""
+    require_admin(token)
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM precios_jitomate_calidad WHERE reporte_jitomate_id = %s", (reporte_id,))
+        cur.execute("DELETE FROM reportes_jitomate WHERE id = %s RETURNING id", (reporte_id,))
+        row = cur.fetchone()
+    if not row:
+        raise HTTPException(404, "Reporte no encontrado")
+    return {"message": "Reporte eliminado", "id": reporte_id}
+
+
 @router.get("/alertas")
 def admin_alertas(token: str, estatus: Optional[str] = Query("activa")):
     """Lista alertas de jitomate."""

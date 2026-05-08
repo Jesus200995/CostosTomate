@@ -29,7 +29,7 @@
           <tr>
             <th>Fecha</th><th>Corte</th><th>Central</th><th>Estado</th>
             <th>1ra</th><th>2da</th><th>3ra</th>
-            <th>Capturista</th><th>Tardía</th>
+            <th>Capturista</th><th>Tardía</th><th></th>
           </tr>
         </thead>
         <tbody>
@@ -43,8 +43,18 @@
             <td>{{ r.sin_dato_tercera ? '—' : r.precio_tercera != null ? '$' + r.precio_tercera.toFixed(2) : '—' }}</td>
             <td>{{ r.capturista_nombre }}</td>
             <td><span v-if="r.captura_tardia" class="badge badge--warning">Tardía</span></td>
+            <td>
+              <button
+                class="btn-delete"
+                :disabled="deletingIds.has(r.id)"
+                @click="eliminarReporte(r.id, r.fecha, r.nombre_central)"
+                title="Eliminar reporte"
+              >
+                <Trash2 :size="15" />
+              </button>
+            </td>
           </tr>
-          <tr v-if="!reportes.length"><td colspan="9" class="empty-state">Sin reportes</td></tr>
+          <tr v-if="!reportes.length"><td colspan="10" class="empty-state">Sin reportes</td></tr>
         </tbody>
       </table>
     </div>
@@ -56,10 +66,11 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { authService } from '@/services/auth.service'
 import AdminLayout from '@/components/AdminLayout.vue'
 import type { ReporteJitomate } from '@/types'
-import { ClipboardList } from 'lucide-vue-next'
+import { ClipboardList, Trash2 } from 'lucide-vue-next'
 
 const loading = ref(false)
 const reportes = ref<ReporteJitomate[]>([])
+const deletingIds = ref(new Set<number>())
 const filtros = reactive({ fecha_desde: '', fecha_hasta: '', corte: '', estado: '', capturista: '' })
 
 const estados = computed(() => {
@@ -75,6 +86,20 @@ async function load() {
     reportes.value = await authService.getReportes(p)
   } catch (e) { console.error(e) }
   finally { loading.value = false }
+}
+
+async function eliminarReporte(id: number, fecha: string, central: string) {
+  if (!confirm(`¿Eliminar reporte del ${fecha} — ${central}?\nEsta acción no se puede deshacer.`)) return
+  deletingIds.value.add(id)
+  try {
+    await authService.deleteReporte(id)
+    reportes.value = reportes.value.filter(r => r.id !== id)
+  } catch (e) {
+    console.error(e)
+    alert('Error al eliminar el reporte. Intenta de nuevo.')
+  } finally {
+    deletingIds.value.delete(id)
+  }
 }
 
 onMounted(load)
@@ -96,4 +121,11 @@ onMounted(load)
 }
 .loading-center { display: flex; justify-content: center; padding: 3rem; }
 .empty-state { text-align: center; padding: 2rem; color: #bbb; }
+.btn-delete {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer;
+  background: #fdecea; color: #c62828; transition: background 0.15s;
+}
+.btn-delete:hover { background: #ef9a9a; color: #b71c1c; }
+.btn-delete:disabled { opacity: 0.45; cursor: not-allowed; }
 </style>
