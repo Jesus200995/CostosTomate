@@ -245,9 +245,9 @@
 
             <div class="form-group">
               <label class="form-label">Estado *</label>
-              <select v-model="propForm.estado" class="input" @change="onPropEstadoChange">
+              <select v-model="propCveEnt" class="input" @change="onPropEstadoChange">
                 <option value="">Selecciona un estado...</option>
-                <option v-for="e in estadosDisponibles" :key="e" :value="e">{{ e }}</option>
+                <option v-for="e in todosEstados" :key="e.cve_ent" :value="e.cve_ent">{{ e.nom_ent }}</option>
               </select>
             </div>
 
@@ -256,10 +256,10 @@
               <select
                 v-model="propForm.municipio"
                 class="input"
-                :disabled="!propForm.estado || loadingPropMunicipios"
+                :disabled="!propCveEnt || loadingPropMunicipios"
               >
-                <option value="">{{ !propForm.estado ? 'Elige estado primero' : loadingPropMunicipios ? 'Cargando...' : 'Selecciona un municipio...' }}</option>
-                <option v-for="m in propMunicipios" :key="m" :value="m">{{ m }}</option>
+                <option value="">{{ !propCveEnt ? 'Elige estado primero' : loadingPropMunicipios ? 'Cargando...' : 'Selecciona un municipio...' }}</option>
+                <option v-for="m in propMunicipios" :key="m.clave_mun" :value="m.nomgeo">{{ m.nomgeo }}</option>
               </select>
             </div>
 
@@ -343,7 +343,8 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import { centralesService } from '@/services/jitomate.service'
-import type { MiCentral, Central, PropuestaCentral } from '@/types'
+import { catalogoService } from '@/services/catalogo.service'
+import type { MiCentral, Central, PropuestaCentral, Estado, Municipio } from '@/types'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppSidebar from '@/components/AppSidebar.vue'
 import AppToast from '@/components/AppToast.vue'
@@ -374,8 +375,10 @@ const propuestas = ref<PropuestaCentral[]>([])
 const estadosDisponibles = ref<string[]>([])
 const municipiosDisponibles = ref<string[]>([])
 const loadingMunicipios = ref(false)
-const propMunicipios = ref<string[]>([])
+const propMunicipios = ref<Municipio[]>([])
 const loadingPropMunicipios = ref(false)
+const todosEstados = ref<Estado[]>([])
+const propCveEnt = ref('')
 
 const filtroNombre = ref('')
 const filtroEstado = ref('')
@@ -419,10 +422,12 @@ function propStatusLabel(s: string) {
 async function onPropEstadoChange() {
   propForm.value.municipio = ''
   propMunicipios.value = []
-  if (!propForm.value.estado) return
+  const est = todosEstados.value.find(e => e.cve_ent === propCveEnt.value)
+  propForm.value.estado = est?.nom_ent || ''
+  if (!propCveEnt.value) return
   loadingPropMunicipios.value = true
   try {
-    propMunicipios.value = await centralesService.getMunicipiosDisponibles(propForm.value.estado)
+    propMunicipios.value = await catalogoService.getMunicipios(propCveEnt.value)
   } catch {
     propMunicipios.value = []
   } finally {
@@ -544,6 +549,7 @@ async function submitPropuesta() {
     propForm.value = { nombre_central: '', tipo: '', estado: '', municipio: '', latitud: 0, longitud: 0 }
     gpsStatus.value = 'idle'
     coordMode.value = 'gps'
+    propCveEnt.value = ''
     propMunicipios.value = []
     activeTab.value = 'propuestas'
   } catch (e: any) {
@@ -555,14 +561,16 @@ async function submitPropuesta() {
 
 onMounted(async () => {
   try {
-    const [centrales, props, estados] = await Promise.all([
+    const [centrales, props, estados, todosEst] = await Promise.all([
       centralesService.getMisCentrales(),
       centralesService.getPropuestas(),
       centralesService.getEstadosDisponibles(),
+      catalogoService.getEstados(),
     ])
     misCentrales.value = centrales
     propuestas.value = props
     estadosDisponibles.value = estados
+    todosEstados.value = todosEst
   } finally {
     loading.value = false
   }
@@ -575,8 +583,8 @@ watch(showCatalogo, async (isOpen) => {
 })
 
 watch(showProponer, async (isOpen) => {
-  if (isOpen && estadosDisponibles.value.length === 0) {
-    try { estadosDisponibles.value = await centralesService.getEstadosDisponibles() } catch {}
+  if (isOpen && todosEstados.value.length === 0) {
+    try { todosEstados.value = await catalogoService.getEstados() } catch {}
   }
 })
 </script>
