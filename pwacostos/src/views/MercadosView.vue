@@ -245,12 +245,22 @@
 
             <div class="form-group">
               <label class="form-label">Estado *</label>
-              <input v-model="propForm.estado" type="text" class="input" placeholder="Ej: Jalisco" />
+              <select v-model="propForm.estado" class="input" @change="onPropEstadoChange">
+                <option value="">Selecciona un estado...</option>
+                <option v-for="e in estadosDisponibles" :key="e" :value="e">{{ e }}</option>
+              </select>
             </div>
 
             <div class="form-group">
               <label class="form-label">Municipio *</label>
-              <input v-model="propForm.municipio" type="text" class="input" placeholder="Ej: Guadalajara" />
+              <select
+                v-model="propForm.municipio"
+                class="input"
+                :disabled="!propForm.estado || loadingPropMunicipios"
+              >
+                <option value="">{{ !propForm.estado ? 'Elige estado primero' : loadingPropMunicipios ? 'Cargando...' : 'Selecciona un municipio...' }}</option>
+                <option v-for="m in propMunicipios" :key="m" :value="m">{{ m }}</option>
+              </select>
             </div>
 
             <!-- Toggle GPS / Manual -->
@@ -364,6 +374,8 @@ const propuestas = ref<PropuestaCentral[]>([])
 const estadosDisponibles = ref<string[]>([])
 const municipiosDisponibles = ref<string[]>([])
 const loadingMunicipios = ref(false)
+const propMunicipios = ref<string[]>([])
+const loadingPropMunicipios = ref(false)
 
 const filtroNombre = ref('')
 const filtroEstado = ref('')
@@ -402,6 +414,20 @@ function propStatusLabel(s: string) {
   if (s === 'aprobada') return 'Aprobada'
   if (s === 'rechazada') return 'Rechazada'
   return 'Pendiente'
+}
+
+async function onPropEstadoChange() {
+  propForm.value.municipio = ''
+  propMunicipios.value = []
+  if (!propForm.value.estado) return
+  loadingPropMunicipios.value = true
+  try {
+    propMunicipios.value = await centralesService.getMunicipiosDisponibles(propForm.value.estado)
+  } catch {
+    propMunicipios.value = []
+  } finally {
+    loadingPropMunicipios.value = false
+  }
 }
 
 async function onEstadoChange() {
@@ -518,6 +544,7 @@ async function submitPropuesta() {
     propForm.value = { nombre_central: '', tipo: '', estado: '', municipio: '', latitud: 0, longitud: 0 }
     gpsStatus.value = 'idle'
     coordMode.value = 'gps'
+    propMunicipios.value = []
     activeTab.value = 'propuestas'
   } catch (e: any) {
     propError.value = e?.response?.data?.detail || 'Error al enviar propuesta'
@@ -543,9 +570,13 @@ onMounted(async () => {
 
 watch(showCatalogo, async (isOpen) => {
   if (isOpen && estadosDisponibles.value.length === 0) {
-    try {
-      estadosDisponibles.value = await centralesService.getEstadosDisponibles()
-    } catch {}
+    try { estadosDisponibles.value = await centralesService.getEstadosDisponibles() } catch {}
+  }
+})
+
+watch(showProponer, async (isOpen) => {
+  if (isOpen && estadosDisponibles.value.length === 0) {
+    try { estadosDisponibles.value = await centralesService.getEstadosDisponibles() } catch {}
   }
 })
 </script>
