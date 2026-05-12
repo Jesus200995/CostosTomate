@@ -295,23 +295,15 @@
               </div>
             </div>
 
-            <!-- Manual -->
-            <div v-else class="coord-manual">
-              <p class="coord-manual__hint">Busca las coordenadas de la central en Google Maps (clic derecho → coordenadas).</p>
-              <div class="coord-manual__row">
-                <div class="form-group" style="flex:1">
-                  <label class="form-label">Latitud *</label>
-                  <input v-model.number="propForm.latitud" type="number" step="0.00001" class="input" placeholder="Ej: 19.42847" />
-                </div>
-                <div class="form-group" style="flex:1">
-                  <label class="form-label">Longitud *</label>
-                  <input v-model.number="propForm.longitud" type="number" step="0.00001" class="input" placeholder="Ej: -99.12766" />
-                </div>
-              </div>
-              <div v-if="propForm.latitud && propForm.longitud" class="gps-status gps-status--ok">
+            <!-- Mapa interactivo -->
+            <div v-else class="coord-map-section">
+              <p class="coord-map__hint"><MapPin :size="13" /> Toca el mapa para marcar la ubicación exacta de la central</p>
+              <div ref="mapContainer" class="coord-map__container"></div>
+              <div v-if="propForm.latitud && propForm.longitud" class="gps-status gps-status--ok" style="margin-top:8px">
                 <CheckCircle :size="16" />
                 <span>{{ Number(propForm.latitud).toFixed(5) }}, {{ Number(propForm.longitud).toFixed(5) }}</span>
               </div>
+              <p v-else class="coord-map__prompt">Toca un punto en el mapa para seleccionar</p>
             </div>
 
             <div v-if="propError" class="alert-error">{{ propError }}</div>
@@ -339,7 +331,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui'
 import { centralesService } from '@/services/jitomate.service'
@@ -367,6 +361,54 @@ const propError = ref('')
 const gpsStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const gpsError = ref('')
 const coordMode = ref<'gps' | 'manual'>('gps')
+
+const mapContainer = ref<HTMLElement | null>(null)
+let mapInstance: L.Map | null = null
+let mapMarker: L.Marker | null = null
+
+function createMarkerIcon() {
+  return L.divIcon({
+    html: `<div style="width:22px;height:22px;background:#c0392b;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    className: '',
+  })
+}
+
+async function initMap() {
+  await nextTick()
+  if (!mapContainer.value) return
+  if (mapInstance) {
+    mapInstance.invalidateSize()
+    return
+  }
+  const lat = propForm.value.latitud || 23.6345
+  const lng = propForm.value.longitud || -102.5528
+  const zoom = propForm.value.latitud ? 14 : 5
+  mapInstance = L.map(mapContainer.value).setView([lat, lng], zoom)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 19,
+  }).addTo(mapInstance)
+  if (propForm.value.latitud && propForm.value.longitud) {
+    mapMarker = L.marker([propForm.value.latitud, propForm.value.longitud], { icon: createMarkerIcon() }).addTo(mapInstance)
+  }
+  mapInstance.on('click', (e: L.LeafletMouseEvent) => {
+    const { lat, lng } = e.latlng
+    propForm.value.latitud = lat
+    propForm.value.longitud = lng
+    if (mapMarker) {
+      mapMarker.setLatLng([lat, lng])
+    } else {
+      mapMarker = L.marker([lat, lng], { icon: createMarkerIcon() }).addTo(mapInstance!)
+    }
+  })
+}
+
+function destroyMap() {
+  if (mapMarker) { mapMarker.remove(); mapMarker = null }
+  if (mapInstance) { mapInstance.remove(); mapInstance = null }
+}
 
 const misCentrales = ref<MiCentral[]>([])
 const catalogoResults = ref<Central[]>([])
@@ -582,11 +624,24 @@ watch(showCatalogo, async (isOpen) => {
   }
 })
 
+watch(coordMode, async (mode) => {
+  if (mode === 'manual') {
+    await initMap()
+  } else {
+    destroyMap()
+  }
+})
+
 watch(showProponer, async (isOpen) => {
+  if (!isOpen) {
+    destroyMap()
+  }
   if (isOpen && todosEstados.value.length === 0) {
     try { todosEstados.value = await catalogoService.getEstados() } catch {}
   }
 })
+
+onUnmounted(() => destroyMap())
 </script>
 
 <style scoped>
@@ -737,8 +792,18 @@ watch(showProponer, async (isOpen) => {
   background: #fff; font-size: 0.78rem; font-weight: 600; color: #666; cursor: pointer;
 }
 .coord-mode-btn--active { border-color: #c0392b; background: #fef5f5; color: #c0392b; }
-.coord-manual__hint { font-size: 0.75rem; color: #888; margin: 0 0 0.5rem; }
-.coord-manual__row { display: flex; gap: 8px; }
+.coord-map-section { display: flex; flex-direction: column; gap: 0; }
+.coord-map__container {
+  width: 100%; height: 260px; border-radius: 12px; overflow: hidden;
+  border: 1.5px solid #e0e0e0; background: #f0f0f0;
+}
+.coord-map__hint {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.75rem; color: #888; margin: 0 0 8px;
+}
+.coord-map__prompt {
+  font-size: 0.73rem; color: #aaa; text-align: center; margin: 6px 0 0; font-style: italic;
+}
 
 .alert-error {
   padding: 8px 12px; background: #fce4ec; color: #c0392b;
