@@ -119,6 +119,7 @@ export interface HistorialJitomateItem {
   disponibilidad?: Disponibilidad
   captura_tardia: boolean
   created_at: string
+  capturista_nombre?: string
 }
 
 export interface LoginPayload {

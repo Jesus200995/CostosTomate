@@ -218,18 +218,25 @@ def historial_jitomate(
     fecha_hasta: Optional[str] = Query(None),
     central_id: Optional[int] = Query(None),
     corte: Optional[str] = Query(None),
+    todos: bool = Query(False),
     user_id: str = Depends(get_current_user_id),
 ):
     with get_db() as conn:
         cur = conn.cursor()
-        query = """SELECT r.id, r.central_id, c.nombre_central, c.estado, c.municipio,
-                          r.fecha, r.corte, r.captura_tardia, r.created_at,
-                          p.calidad, p.precio, p.sin_dato, p.disponibilidad
-                   FROM reportes_jitomate r
-                   JOIN catalogo_centrales c ON c.id = r.central_id
-                   JOIN precios_jitomate_calidad p ON p.reporte_jitomate_id = r.id
-                   WHERE r.usuario_id = %s::uuid"""
-        params: list = [user_id]
+        base = """SELECT r.id, r.central_id, c.nombre_central, c.estado, c.municipio,
+                         r.fecha, r.corte, r.captura_tardia, r.created_at,
+                         p.calidad, p.precio, p.sin_dato, p.disponibilidad,
+                         u.name AS capturista_nombre
+                  FROM reportes_jitomate r
+                  JOIN catalogo_centrales c ON c.id = r.central_id
+                  JOIN precios_jitomate_calidad p ON p.reporte_jitomate_id = r.id
+                  JOIN users u ON u.id = r.usuario_id"""
+        if todos:
+            query = base + " WHERE 1=1"
+            params: list = []
+        else:
+            query = base + " WHERE r.usuario_id = %s::uuid"
+            params = [user_id]
 
         if central_id:
             query += " AND r.central_id = %s"
@@ -263,6 +270,7 @@ def historial_jitomate(
             disponibilidad=r["disponibilidad"],
             captura_tardia=r["captura_tardia"],
             created_at=r["created_at"],
+            capturista_nombre=r["capturista_nombre"],
         )
         for r in rows
     ]

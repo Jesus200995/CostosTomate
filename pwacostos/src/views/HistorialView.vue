@@ -12,6 +12,16 @@
             <h1>Historial de Precios</h1>
           </div>
 
+          <!-- Toggle mis capturas / todas -->
+          <div class="scope-toggle">
+            <button class="scope-btn" :class="{ 'scope-btn--active': !verTodos }" @click="setScope(false)">
+              Mis capturas
+            </button>
+            <button class="scope-btn" :class="{ 'scope-btn--active': verTodos }" @click="setScope(true)">
+              Todas las capturas
+            </button>
+          </div>
+
           <!-- Filtros -->
           <div class="filtros-card">
             <div class="filtros-fechas">
@@ -80,6 +90,9 @@
                       <span class="reporte-central">{{ reporte.central_nombre }}</span>
                       <span v-if="reporte.central_estado" class="reporte-estado">{{ reporte.central_estado }}</span>
                     </div>
+                    <span v-if="verTodos && reporte.capturista_nombre" class="capturista-tag">
+                      {{ reporte.capturista_nombre }}
+                    </span>
                     <div class="reporte-badges">
                       <span class="corte-badge" :class="reporte.corte === 'matutino' ? 'badge--morning' : 'badge--noon'">
                         {{ reporte.corte === 'matutino' ? 'Matutino' : 'Mediodía' }}
@@ -137,6 +150,7 @@ interface ReporteAgrupado {
   corte: string
   captura_tardia: boolean
   precios: Partial<Record<Calidad, PrecioInfo>>
+  capturista_nombre?: string
 }
 
 interface DateGroup {
@@ -152,6 +166,7 @@ const fechaDesde = ref('')
 const fechaHasta = ref('')
 const filtroCentral = ref('')
 const filtroCorte = ref('')
+const verTodos = ref(false)
 
 function closeSidebar() {
   if (ui.sidebarOpen) ui.closeSidebar()
@@ -164,15 +179,22 @@ function calLabel(cal: Calidad): string {
 async function loadHistorial() {
   loading.value = true
   try {
-    const params: Record<string, string> = {}
+    const params: Record<string, string | boolean> = {}
     if (fechaDesde.value) params.fecha_desde = fechaDesde.value
     if (fechaHasta.value) params.fecha_hasta = fechaHasta.value
+    if (verTodos.value) params.todos = true
     historial.value = await jitomateService.getHistorial(params)
   } catch {
     ui.showToast('Error al cargar historial', 'error')
   } finally {
     loading.value = false
   }
+}
+
+function setScope(todos: boolean) {
+  verTodos.value = todos
+  filtroCentral.value = ''
+  loadHistorial()
 }
 
 function clearFilters() {
@@ -206,6 +228,7 @@ const reportesFiltrados = computed<ReporteAgrupado[]>(() => {
         corte: item.corte,
         captura_tardia: item.captura_tardia,
         precios: {},
+        capturista_nombre: item.capturista_nombre,
       })
     }
     const reporte = map.get(key)!
@@ -361,6 +384,41 @@ onMounted(() => {
   font-weight: 600;
   cursor: pointer;
   align-self: flex-start;
+}
+
+/* ── Scope toggle ── */
+.scope-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 0.75rem;
+}
+.scope-btn {
+  flex: 1;
+  padding: 7px 12px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.scope-btn--active {
+  border-color: #c0392b;
+  background: #fef5f5;
+  color: #c0392b;
+}
+.capturista-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #5c6bc0;
+  background: #e8eaf6;
+  padding: 2px 7px;
+  border-radius: 8px;
+  white-space: nowrap;
+  margin-top: 2px;
+  display: inline-block;
 }
 
 /* ── Resumen ── */

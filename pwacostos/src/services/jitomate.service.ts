@@ -81,6 +81,7 @@ export const jitomateService = {
     fecha_desde?: string
     fecha_hasta?: string
     corte?: string
+    todos?: boolean
   }): Promise<HistorialJitomateItem[]> {
     const { data } = await api.get<HistorialJitomateItem[]>('/jitomate/historial', { params })
     return data

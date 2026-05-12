@@ -393,3 +393,4 @@ class HistorialJitomateItem(BaseModel):
     disponibilidad: Optional[str] = None
     captura_tardia: bool
     created_at: datetime
+    capturista_nombre: Optional[str] = None

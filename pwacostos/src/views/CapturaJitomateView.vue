@@ -24,8 +24,20 @@
               {{ c.nombre_central }} — {{ c.municipio }}, {{ c.estado }}
             </option>
           </select>
-          <p v-if="misCentrales.length === 0 && !loadingCentrales" class="form-hint">
-            <router-link to="/centrales">Agrega centrales</router-link> antes de capturar.
+          <!-- Banner guía cuando no hay centrales -->
+          <div v-if="misCentrales.length === 0 && !loadingCentrales" class="sin-centrales-banner">
+            <div class="sin-centrales-banner__icon">
+              <Building2 :size="36" />
+            </div>
+            <h3>Primero agrega tu Central de Abasto</h3>
+            <p>Para capturar precios debes registrar primero la central desde la sección <strong>"Mis Centrales"</strong>. Ahí podrás buscar tu central por estado y municipio y agregarla a tu lista.</p>
+            <router-link to="/centrales" class="btn btn--primary btn--full" style="margin-top:0.5rem; text-decoration:none; display:flex; align-items:center; gap:8px; justify-content:center;">
+              <Building2 :size="18" /> Ir a Mis Centrales
+            </router-link>
+          </div>
+          <!-- Enlace para agregar más centrales cuando ya hay al menos una -->
+          <p v-else-if="misCentrales.length > 0" class="form-hint form-hint--link">
+            <router-link to="/centrales">+ Agregar otra central</router-link>
           </p>
         </div>
 
@@ -353,6 +365,22 @@ onMounted(async () => {
 .form-select-sm:focus { outline: none; border-color: #c0392b; }
 .form-hint { font-size: 0.75rem; color: #888; }
 .form-hint a { color: #c0392b; }
+.form-hint--link { margin-top: 4px; }
+.sin-centrales-banner {
+  background: #fff8f8;
+  border: 2px solid #f5c6c6;
+  border-radius: 14px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+.sin-centrales-banner__icon { color: #c0392b; opacity: 0.7; }
+.sin-centrales-banner h3 { font-size: 1rem; font-weight: 700; color: #c0392b; margin: 0; }
+.sin-centrales-banner p { font-size: 0.83rem; color: #555; margin: 0; line-height: 1.5; }
 .form-textarea { resize: vertical; min-height: 60px; }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

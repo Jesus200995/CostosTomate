@@ -253,20 +253,55 @@
               <input v-model="propForm.municipio" type="text" class="input" placeholder="Ej: Guadalajara" />
             </div>
 
-            <div class="gps-buttons">
-              <button class="btn btn--outline btn--full btn--wrap" type="button" @click="captureGPS" :disabled="gpsStatus === 'loading'">
-                <Navigation :size="16" />
-                <span>{{ gpsStatus === 'success' ? 'Recapturar GPS' : 'Capturar mi ubicación' }}</span>
-              </button>
+            <!-- Toggle GPS / Manual -->
+            <div class="coord-mode-toggle">
+              <button
+                type="button"
+                class="coord-mode-btn"
+                :class="{ 'coord-mode-btn--active': coordMode === 'gps' }"
+                @click="coordMode = 'gps'"
+              ><Navigation :size="14" /> GPS automático</button>
+              <button
+                type="button"
+                class="coord-mode-btn"
+                :class="{ 'coord-mode-btn--active': coordMode === 'manual' }"
+                @click="coordMode = 'manual'"
+              ><MapPin :size="14" /> Ingresar manualmente</button>
             </div>
 
-            <div v-if="gpsStatus === 'success'" class="gps-status gps-status--ok">
-              <CheckCircle :size="16" />
-              <span>GPS: {{ propForm.latitud.toFixed(5) }}, {{ propForm.longitud.toFixed(5) }}</span>
+            <!-- GPS -->
+            <div v-if="coordMode === 'gps'" class="gps-buttons">
+              <button class="btn btn--outline btn--full btn--wrap" type="button" @click="captureGPS" :disabled="gpsStatus === 'loading'">
+                <Navigation :size="16" />
+                <span>{{ gpsStatus === 'loading' ? 'Obteniendo ubicación...' : gpsStatus === 'success' ? 'Recapturar GPS' : 'Capturar mi ubicación' }}</span>
+              </button>
+              <div v-if="gpsStatus === 'success'" class="gps-status gps-status--ok">
+                <CheckCircle :size="16" />
+                <span>{{ propForm.latitud.toFixed(5) }}, {{ propForm.longitud.toFixed(5) }}</span>
+              </div>
+              <div v-else-if="gpsStatus === 'error'" class="gps-status gps-status--error">
+                <AlertCircle :size="16" />
+                <span>{{ gpsError }}</span>
+              </div>
             </div>
-            <div v-else-if="gpsStatus === 'error'" class="gps-status gps-status--error">
-              <AlertCircle :size="16" />
-              <span>{{ gpsError }}</span>
+
+            <!-- Manual -->
+            <div v-else class="coord-manual">
+              <p class="coord-manual__hint">Busca las coordenadas de la central en Google Maps (clic derecho → coordenadas).</p>
+              <div class="coord-manual__row">
+                <div class="form-group" style="flex:1">
+                  <label class="form-label">Latitud *</label>
+                  <input v-model.number="propForm.latitud" type="number" step="0.00001" class="input" placeholder="Ej: 19.42847" />
+                </div>
+                <div class="form-group" style="flex:1">
+                  <label class="form-label">Longitud *</label>
+                  <input v-model.number="propForm.longitud" type="number" step="0.00001" class="input" placeholder="Ej: -99.12766" />
+                </div>
+              </div>
+              <div v-if="propForm.latitud && propForm.longitud" class="gps-status gps-status--ok">
+                <CheckCircle :size="16" />
+                <span>{{ Number(propForm.latitud).toFixed(5) }}, {{ Number(propForm.longitud).toFixed(5) }}</span>
+              </div>
             </div>
 
             <div v-if="propError" class="alert-error">{{ propError }}</div>
@@ -320,6 +355,7 @@ const submittingProp = ref(false)
 const propError = ref('')
 const gpsStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const gpsError = ref('')
+const coordMode = ref<'gps' | 'manual'>('gps')
 
 const misCentrales = ref<MiCentral[]>([])
 const catalogoResults = ref<Central[]>([])
@@ -462,7 +498,8 @@ async function submitPropuesta() {
   const f = propForm.value
   if (!f.nombre_central.trim()) { propError.value = 'Ingresa el nombre'; return }
   if (!f.estado.trim() || !f.municipio.trim()) { propError.value = 'Ingresa estado y municipio'; return }
-  if (gpsStatus.value !== 'success') { propError.value = 'Captura tu ubicación GPS'; return }
+  if (coordMode.value === 'gps' && gpsStatus.value !== 'success') { propError.value = 'Captura tu ubicación GPS'; return }
+  if (coordMode.value === 'manual' && (!f.latitud || !f.longitud)) { propError.value = 'Ingresa las coordenadas de la central'; return }
 
   propError.value = ''
   submittingProp.value = true
@@ -480,6 +517,7 @@ async function submitPropuesta() {
     ui.showToast('Propuesta enviada correctamente', 'success')
     propForm.value = { nombre_central: '', tipo: '', estado: '', municipio: '', latitud: 0, longitud: 0 }
     gpsStatus.value = 'idle'
+    coordMode.value = 'gps'
     activeTab.value = 'propuestas'
   } catch (e: any) {
     propError.value = e?.response?.data?.detail || 'Error al enviar propuesta'
@@ -651,6 +689,17 @@ watch(showCatalogo, async (isOpen) => {
 }
 .gps-status--ok { background: #e8f5e9; color: #2e7d32; }
 .gps-status--error { background: #fce4ec; color: #c0392b; }
+.coord-mode-toggle {
+  display: flex; gap: 6px; margin-bottom: 0.5rem;
+}
+.coord-mode-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 7px 10px; border: 1.5px solid #e0e0e0; border-radius: 8px;
+  background: #fff; font-size: 0.78rem; font-weight: 600; color: #666; cursor: pointer;
+}
+.coord-mode-btn--active { border-color: #c0392b; background: #fef5f5; color: #c0392b; }
+.coord-manual__hint { font-size: 0.75rem; color: #888; margin: 0 0 0.5rem; }
+.coord-manual__row { display: flex; gap: 8px; }
 
 .alert-error {
   padding: 8px 12px; background: #fce4ec; color: #c0392b;
