@@ -32,6 +32,14 @@ export const authService = {
     const res = await api.patch(`/admin/usuarios/${userId}/rol`, { rol })
     return res.data
   },
+  async updatePermisos(userId: number, permisos: string[]): Promise<{ permisos: string[] }> {
+    const res = await api.patch(`/admin/usuarios/${userId}/permisos`, { permisos })
+    return res.data
+  },
+  async createUsuario(data: Record<string, any>): Promise<AdminUser> {
+    const res = await api.post('/admin/usuarios', data)
+    return res.data
+  },
   async deleteUsuario(userId: number): Promise<void> {
     await api.delete(`/admin/usuarios/${userId}`)
   },

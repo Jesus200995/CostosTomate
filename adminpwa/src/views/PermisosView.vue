@@ -3,7 +3,9 @@
     <div class="perm-page">
       <div class="top-bar">
         <h1 class="top-bar__title"><ShieldCheck :size="22" /> Permisos de Usuarios</h1>
-        <span class="top-bar__count">{{ filtered.length }} de {{ usuarios.length }}</span>
+        <button class="btn-add" @click="openCreate">
+          <UserPlus :size="16" /><span>Añadir usuario</span>
+        </button>
       </div>
 
       <div class="filters-bar">
@@ -67,6 +69,14 @@
                   >
                     <ShieldCheck v-if="u.rol !== 'administrador'" :size="14" />
                     <ShieldOff v-else :size="14" />
+                  </button>
+                  <button
+                    v-if="u.rol !== 'administrador'"
+                    class="act-btn act-btn--permisos"
+                    title="Editar permisos de vistas"
+                    @click="openPermisos(u)"
+                  >
+                    <Settings :size="14" />
                   </button>
                   <button
                     class="act-btn"
@@ -164,6 +174,103 @@
         </div>
       </Teleport>
 
+      <!-- MODAL: CREAR USUARIO -->
+      <Teleport to="body">
+        <div v-if="showCreate" class="overlay" @click.self="showCreate = false">
+          <div class="modal modal--create">
+            <div class="modal__header modal__header--create">
+              <h2><UserPlus :size="18" /> Nuevo Usuario</h2>
+              <button class="modal__close" @click="showCreate = false"><X :size="18" /></button>
+            </div>
+            <div class="modal__body">
+              <div class="form-grid">
+                <div class="fg"><label class="fl">Nombre *</label><input v-model="createForm.nombre" class="finput" placeholder="Nombre" /></div>
+                <div class="fg"><label class="fl">Apellido Paterno *</label><input v-model="createForm.apellido_paterno" class="finput" placeholder="Apellido Paterno" /></div>
+                <div class="fg"><label class="fl">Apellido Materno *</label><input v-model="createForm.apellido_materno" class="finput" placeholder="Apellido Materno" /></div>
+                <div class="fg"><label class="fl">CURP *</label><input v-model="createForm.curp" class="finput" placeholder="18 caracteres" maxlength="18" style="text-transform:uppercase" /></div>
+                <div class="fg"><label class="fl">Correo *</label><input v-model="createForm.correo" class="finput" type="email" placeholder="correo@ejemplo.com" /></div>
+                <div class="fg"><label class="fl">Teléfono *</label><input v-model="createForm.telefono" class="finput" placeholder="10 dígitos" maxlength="10" /></div>
+                <div class="fg"><label class="fl">Contraseña *</label><input v-model="createForm.password" class="finput" type="password" placeholder="Mínimo 6 caracteres" /></div>
+                <div class="fg"><label class="fl">Rol</label>
+                  <select v-model="createForm.rol" class="finput">
+                    <option value="usuario">Usuario</option>
+                    <option value="administrador">Administrador</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Selector de permisos (solo si rol = usuario) -->
+              <div v-if="createForm.rol === 'usuario'" class="permisos-section">
+                <div class="permisos-header">
+                  <Settings :size="16" />
+                  <span>Acceso a vistas</span>
+                  <span class="permisos-hint">Selecciona qué secciones podrá ver este usuario</span>
+                </div>
+                <div class="permisos-grid">
+                  <label v-for="v in VISTAS" :key="v.key" class="permiso-item" :class="{ active: createForm.permisos.includes(v.key) }">
+                    <input type="checkbox" :value="v.key" v-model="createForm.permisos" class="permiso-check" />
+                    <div class="permiso-icon">{{ v.icon }}</div>
+                    <div class="permiso-info">
+                      <span class="permiso-label">{{ v.label }}</span>
+                      <span class="permiso-desc">{{ v.desc }}</span>
+                    </div>
+                    <div class="permiso-badge" :class="createForm.permisos.includes(v.key) ? 'permiso-badge--on' : 'permiso-badge--off'">
+                      {{ createForm.permisos.includes(v.key) ? 'Activo' : 'Sin acceso' }}
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <div v-else class="permisos-admin-note">
+                <ShieldCheck :size="18" />
+                <span>Los administradores tienen acceso completo a todas las vistas.</span>
+              </div>
+            </div>
+            <div class="modal__footer">
+              <button class="mbtn mbtn--secondary" @click="showCreate = false">Cancelar</button>
+              <button class="mbtn mbtn--create" :disabled="saving" @click="confirmCreate">{{ saving ? 'Creando...' : 'Crear usuario' }}</button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
+      <!-- MODAL: EDITAR PERMISOS -->
+      <Teleport to="body">
+        <div v-if="permisosTarget" class="overlay" @click.self="permisosTarget = null">
+          <div class="modal modal--create">
+            <div class="modal__header modal__header--create">
+              <h2><Settings :size="18" /> Permisos de vistas</h2>
+              <button class="modal__close" @click="permisosTarget = null"><X :size="18" /></button>
+            </div>
+            <div class="modal__body">
+              <div class="user-card" style="margin-bottom:1rem">
+                <div class="user-card__avatar">{{ initials(permisosTarget) }}</div>
+                <div class="user-card__name">{{ permisosTarget.nombre }} {{ permisosTarget.apellido_paterno }}</div>
+                <div class="user-card__badges">
+                  <span class="badge badge--user">Usuario</span>
+                </div>
+              </div>
+              <div class="permisos-grid">
+                <label v-for="v in VISTAS" :key="v.key" class="permiso-item" :class="{ active: editPermisos.includes(v.key) }">
+                  <input type="checkbox" :value="v.key" v-model="editPermisos" class="permiso-check" />
+                  <div class="permiso-icon">{{ v.icon }}</div>
+                  <div class="permiso-info">
+                    <span class="permiso-label">{{ v.label }}</span>
+                    <span class="permiso-desc">{{ v.desc }}</span>
+                  </div>
+                  <div class="permiso-badge" :class="editPermisos.includes(v.key) ? 'permiso-badge--on' : 'permiso-badge--off'">
+                    {{ editPermisos.includes(v.key) ? 'Activo' : 'Sin acceso' }}
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div class="modal__footer">
+              <button class="mbtn mbtn--secondary" @click="permisosTarget = null">Cancelar</button>
+              <button class="mbtn mbtn--create" :disabled="saving" @click="savePermisos">{{ saving ? 'Guardando...' : 'Guardar permisos' }}</button>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+
       <!-- TOAST -->
       <Teleport to="body">
         <div v-if="toast" :class="['toast-msg', 'toast-msg--' + toast.type]">{{ toast.text }}</div>
@@ -178,7 +285,13 @@ import { authService } from '@/services/auth.service'
 import { useAuthStore } from '@/stores/auth'
 import AdminLayout from '@/components/AdminLayout.vue'
 import type { AdminUser } from '@/types'
-import { ShieldCheck, ShieldOff, Eye, User, UserCheck, UserX, X } from 'lucide-vue-next'
+import { ShieldCheck, ShieldOff, Eye, User, UserCheck, UserX, X, UserPlus, Settings } from 'lucide-vue-next'
+
+const VISTAS = [
+  { key: 'visor', label: 'Mapa / Visor', desc: 'Ver mapa interactivo de centrales', icon: '🗺️' },
+  { key: 'reportes', label: 'Reportes', desc: 'Ver reportes de precios jitomate', icon: '📋' },
+  { key: 'alertas', label: 'Alertas', desc: 'Ver alertas activas del sistema', icon: '🔔' },
+]
 
 const auth = useAuthStore()
 const loading = ref(false)
@@ -190,7 +303,17 @@ const filtroEstatus = ref('')
 
 const viewUser = ref<AdminUser | null>(null)
 const rolTarget = ref<AdminUser | null>(null)
+const permisosTarget = ref<AdminUser | null>(null)
+const showCreate = ref(false)
 const toast = ref<{ text: string; type: string } | null>(null)
+
+const editPermisos = ref<string[]>([])
+const createForm = ref({
+  nombre: '', apellido_paterno: '', apellido_materno: '',
+  curp: '', correo: '', telefono: '', password: '',
+  rol: 'usuario',
+  permisos: [] as string[]
+})
 
 const filtered = computed(() => {
   return usuarios.value.filter(u => {
@@ -218,6 +341,50 @@ function showToast(text: string, type = 'success') {
 
 function openView(u: AdminUser) { viewUser.value = u }
 function openRolModal(u: AdminUser) { rolTarget.value = u }
+
+function openCreate() {
+  createForm.value = { nombre: '', apellido_paterno: '', apellido_materno: '', curp: '', correo: '', telefono: '', password: '', rol: 'usuario', permisos: [] }
+  showCreate.value = true
+}
+
+function openPermisos(u: AdminUser) {
+  permisosTarget.value = u
+  editPermisos.value = [...(u.permisos || [])]
+}
+
+async function confirmCreate() {
+  const f = createForm.value
+  if (!f.nombre || !f.apellido_paterno || !f.apellido_materno || !f.curp || !f.correo || !f.telefono || !f.password) {
+    showToast('Completa todos los campos obligatorios', 'error'); return
+  }
+  saving.value = true
+  try {
+    const payload: Record<string, any> = { ...f, curp: f.curp.toUpperCase() }
+    const created = await authService.createUsuario(payload)
+    if (f.rol === 'usuario' && f.permisos.length) {
+      const res = await authService.updatePermisos(created.id, f.permisos)
+      created.permisos = res.permisos
+    }
+    usuarios.value.unshift(created)
+    showCreate.value = false
+    showToast('Usuario creado correctamente')
+  } catch (e: any) {
+    showToast(e?.response?.data?.detail || 'Error al crear usuario', 'error')
+  } finally { saving.value = false }
+}
+
+async function savePermisos() {
+  if (!permisosTarget.value) return
+  saving.value = true
+  try {
+    const res = await authService.updatePermisos(permisosTarget.value.id, editPermisos.value)
+    const idx = usuarios.value.findIndex(u => u.id === permisosTarget.value!.id)
+    if (idx !== -1) usuarios.value[idx].permisos = res.permisos
+    permisosTarget.value = null
+    showToast('Permisos actualizados')
+  } catch (e) { showToast('Error al actualizar permisos', 'error') }
+  finally { saving.value = false }
+}
 
 async function toggleEstatus(u: AdminUser) {
   const nuevo = u.estatus === 'activo' ? 'inactivo' : 'activo'
@@ -262,6 +429,14 @@ onMounted(load)
 }
 .top-bar__title { font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
 .top-bar__count { font-size: 0.8rem; color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.15); padding: 3px 10px; border-radius: 8px; }
+.btn-add {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: rgba(255,255,255,0.95); color: #1a237e;
+  border: none; padding: 0.55rem 1.1rem; border-radius: 12px;
+  font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all .15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.btn-add:hover { background: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 
 .filters-bar {
   display: flex; gap: 0.5rem; flex-shrink: 0; margin-bottom: 0.75rem;
@@ -317,6 +492,8 @@ onMounted(load)
 .act-btn--activate:not(:disabled):hover { background: #c8e6c9; }
 .act-btn--deactivate { background: #ffebee; color: #c62828; }
 .act-btn--deactivate:not(:disabled):hover { background: #ffcdd2; }
+.act-btn--permisos { background: #f3e5f5; color: #6a1b9a; }
+.act-btn--permisos:hover { background: #e1bee7; }
 
 /* Overlay & Modal */
 .overlay {
@@ -333,6 +510,58 @@ onMounted(load)
 }
 .modal--view { max-width: 480px; }
 .modal--confirm { max-width: 400px; }
+.modal--create { max-width: 600px; }
+.modal__header--create { background: linear-gradient(135deg, #1a237e, #283593); border-radius: 20px 20px 0 0; }
+.modal__header--create h2 { color: #fff; display: flex; align-items: center; gap: 0.5rem; }
+.modal__header--create .modal__close { background: rgba(255,255,255,0.2); color: #fff; }
+.modal__header--create .modal__close:hover { background: rgba(255,255,255,0.35); }
+
+/* Form grid */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem; }
+.fg { display: flex; flex-direction: column; gap: 4px; }
+.fl { font-size: 0.75rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.3px; }
+.finput {
+  padding: 8px 10px; border: 1.5px solid #e0e0e0; border-radius: 10px;
+  font-size: 0.88rem; outline: none; transition: border-color .15s; background: #fafafa;
+}
+.finput:focus { border-color: #3949ab; background: #fff; }
+
+/* Permisos section */
+.permisos-section { border-top: 1px solid #f0f0f0; padding-top: 1rem; }
+.permisos-header {
+  display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;
+  font-size: 0.88rem; font-weight: 700; color: #333;
+}
+.permisos-hint { font-size: 0.75rem; font-weight: 400; color: #999; margin-left: auto; }
+.permisos-grid { display: flex; flex-direction: column; gap: 8px; }
+
+.permiso-item {
+  display: flex; align-items: center; gap: 0.85rem;
+  padding: 0.75rem 1rem; border: 1.5px solid #e8e8e8; border-radius: 14px;
+  cursor: pointer; transition: all .2s; background: #fafafa;
+}
+.permiso-item:hover { border-color: #9c27b0; background: #fdf4ff; }
+.permiso-item.active { border-color: #7b1fa2; background: #f9f0ff; }
+.permiso-check { display: none; }
+.permiso-icon { font-size: 1.4rem; flex-shrink: 0; width: 36px; text-align: center; }
+.permiso-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.permiso-label { font-size: 0.9rem; font-weight: 600; color: #222; }
+.permiso-desc { font-size: 0.75rem; color: #888; }
+.permiso-badge {
+  font-size: 0.68rem; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+  flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.permiso-badge--on { background: #e8f5e9; color: #2e7d32; }
+.permiso-badge--off { background: #f5f5f5; color: #aaa; }
+
+.permisos-admin-note {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: #e8eaf6; color: #283593; border-radius: 12px;
+  padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 600;
+  border-top: 1px solid #f0f0f0; margin-top: 1rem;
+}
+.mbtn--create { background: linear-gradient(135deg, #1a237e, #3949ab); color: #fff; }
+.mbtn--create:hover:not(:disabled) { background: linear-gradient(135deg, #0d1757, #283593); }
 
 .modal__header {
   display: flex; align-items: center; justify-content: space-between;

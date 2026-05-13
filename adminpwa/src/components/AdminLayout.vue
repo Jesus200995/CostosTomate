@@ -48,13 +48,13 @@
         <router-link to="/" class="nav-item" :class="{ active: $route.path === '/' }" @click="closeMobile">
           <LayoutDashboard :size="18" /><span>Dashboard</span>
         </router-link>
-        <router-link to="/visor" class="nav-item" :class="{ active: $route.path === '/visor' }" @click="closeMobile">
+        <router-link v-if="auth.hasPermiso('visor')" to="/visor" class="nav-item" :class="{ active: $route.path === '/visor' }" @click="closeMobile">
           <MapIcon :size="18" /><span>Mapa</span>
         </router-link>
-        <router-link to="/reportes" class="nav-item" :class="{ active: $route.path === '/reportes' }" @click="closeMobile">
+        <router-link v-if="auth.hasPermiso('reportes')" to="/reportes" class="nav-item" :class="{ active: $route.path === '/reportes' }" @click="closeMobile">
           <ClipboardList :size="18" /><span>Reportes</span>
         </router-link>
-        <router-link to="/alertas" class="nav-item" :class="{ active: $route.path === '/alertas' }" @click="closeMobile">
+        <router-link v-if="auth.hasPermiso('alertas')" to="/alertas" class="nav-item" :class="{ active: $route.path === '/alertas' }" @click="closeMobile">
           <Bell :size="18" /><span>Alertas</span>
         </router-link>
 

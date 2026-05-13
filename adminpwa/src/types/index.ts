@@ -9,6 +9,7 @@ export interface AdminUser {
   rol: 'usuario' | 'administrador'
   estatus: 'activo' | 'inactivo'
   created_at: string
+  permisos: string[]
 }
 
 export interface PWAUser {

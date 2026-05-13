@@ -26,19 +26,19 @@ const router = createRouter({
       path: '/visor',
       name: 'Visor',
       component: () => import('@/views/VisorView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, permiso: 'visor' }
     },
     {
       path: '/reportes',
       name: 'Reportes',
       component: () => import('@/views/ReportesView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, permiso: 'reportes' }
     },
     {
       path: '/alertas',
       name: 'Alertas',
       component: () => import('@/views/AlertasView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, permiso: 'alertas' }
     },
     {
       path: '/centrales',
@@ -99,6 +99,12 @@ router.beforeEach(async (to, _from, next) => {
 
   if (to.meta.requiresAdmin && auth.user?.rol !== 'administrador') {
     return next('/')
+  }
+
+  if (to.meta.permiso && auth.user?.rol !== 'administrador') {
+    if (!auth.hasPermiso(to.meta.permiso as string)) {
+      return next('/')
+    }
   }
 
   next()

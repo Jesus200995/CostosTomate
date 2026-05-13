@@ -11,6 +11,12 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!token.value && !!user.value)
   const isAdmin = computed(() => user.value?.rol === 'administrador')
 
+  function hasPermiso(vista: string): boolean {
+    if (!user.value) return false
+    if (user.value.rol === 'administrador') return true
+    return (user.value.permisos || []).includes(vista)
+  }
+
   async function init() {
     if (token.value) {
       try {
@@ -59,6 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
     loading,
     isAuthenticated,
     isAdmin,
+    hasPermiso,
     init,
     login,
     register,

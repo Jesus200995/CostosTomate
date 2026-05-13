@@ -69,6 +69,7 @@ class AdminUserOut(BaseModel):
     rol: str
     estatus: str
     created_at: str
+    permisos: list = []
 
 
 class AdminAuthResponse(BaseModel):
@@ -87,6 +88,11 @@ class AdminUserListOut(BaseModel):
     rol: str
     estatus: str
     created_at: str
+    permisos: list = []
+
+
+class UpdatePermisosRequest(BaseModel):
+    permisos: list
 
 
 class UpdateEstatusRequest(BaseModel):
@@ -245,7 +251,7 @@ def get_current_admin(token: str):
         cur = conn.cursor()
         cur.execute(
             """SELECT id, nombre, apellido_paterno, apellido_materno, curp, correo, telefono, 
-                      rol, estatus, created_at
+                      rol, estatus, created_at, COALESCE(permisos, '[]'::jsonb) as permisos
                FROM usersadmin WHERE id = %s""",
             (admin_id,),
         )
@@ -265,6 +271,37 @@ def get_current_admin(token: str):
         rol=row["rol"],
         estatus=row["estatus"],
         created_at=row["created_at"].isoformat(),
+        permisos=row["permisos"] or [],
+    )
+
+
+@router.post("/usuarios", response_model=AdminUserListOut, status_code=201)
+def create_usuario(data: AdminRegisterRequest, token: str):
+    """Crear usuario administrativo (solo administradores)"""
+    require_admin(token)
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM usersadmin WHERE curp = %s", (data.curp,))
+        if cur.fetchone():
+            raise HTTPException(409, "Esta CURP ya está registrada")
+        cur.execute("SELECT id FROM usersadmin WHERE correo = %s", (data.correo.lower(),))
+        if cur.fetchone():
+            raise HTTPException(409, "Este correo ya está registrado")
+        hashed = hash_password(data.password)
+        rol = data.rol if data.rol in ('usuario', 'administrador') else 'usuario'
+        cur.execute(
+            """INSERT INTO usersadmin (nombre, apellido_paterno, apellido_materno, curp, correo, telefono, password_hash, rol, estatus)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'activo')
+               RETURNING id, nombre, apellido_paterno, apellido_materno, curp, correo, telefono, rol, estatus, created_at, COALESCE(permisos, '[]'::jsonb) as permisos""",
+            (data.nombre, data.apellido_paterno, data.apellido_materno, data.curp,
+             data.correo.lower(), data.telefono, hashed, rol),
+        )
+        row = cur.fetchone()
+    return AdminUserListOut(
+        id=row["id"], nombre=row["nombre"], apellido_paterno=row["apellido_paterno"],
+        apellido_materno=row["apellido_materno"], curp=row["curp"], correo=row["correo"],
+        telefono=row["telefono"], rol=row["rol"], estatus=row["estatus"],
+        created_at=row["created_at"].isoformat(), permisos=row["permisos"] or [],
     )
 
 
@@ -277,7 +314,7 @@ def list_usuarios(token: str):
         cur = conn.cursor()
         cur.execute(
             """SELECT id, nombre, apellido_paterno, apellido_materno, curp, correo, telefono, 
-                      rol, estatus, created_at
+                      rol, estatus, created_at, COALESCE(permisos, '[]'::jsonb) as permisos
                FROM usersadmin ORDER BY created_at DESC"""
         )
         rows = cur.fetchall()
@@ -294,6 +331,7 @@ def list_usuarios(token: str):
             rol=r["rol"],
             estatus=r["estatus"],
             created_at=r["created_at"].isoformat(),
+            permisos=r["permisos"] or [],
         )
         for r in rows
     ]
@@ -419,6 +457,36 @@ def update_usuario(user_id: int, data: AdminUserUpdateRequest, token: str):
         estatus=row["estatus"],
         created_at=row["created_at"].isoformat(),
     )
+
+
+@router.get("/usuarios/{user_id}/permisos")
+def get_permisos(user_id: int, token: str):
+    """Obtener permisos de un usuario (solo administradores)"""
+    require_admin(token)
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT permisos FROM usersadmin WHERE id = %s", (user_id,))
+        row = cur.fetchone()
+    if not row:
+        raise HTTPException(404, "Usuario no encontrado")
+    return {"permisos": row["permisos"] or []}
+
+
+@router.patch("/usuarios/{user_id}/permisos")
+def update_permisos(user_id: int, data: UpdatePermisosRequest, token: str):
+    """Actualizar permisos de un usuario (solo administradores)"""
+    require_admin(token)
+    import json
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE usersadmin SET permisos = %s::jsonb, updated_at = CURRENT_TIMESTAMP WHERE id = %s RETURNING id, permisos",
+            (json.dumps(data.permisos), user_id),
+        )
+        row = cur.fetchone()
+    if not row:
+        raise HTTPException(404, "Usuario no encontrado")
+    return {"permisos": row["permisos"] or []}
 
 
 @router.delete("/usuarios/{user_id}")
