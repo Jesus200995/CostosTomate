@@ -437,7 +437,7 @@ def update_usuario(user_id: int, data: AdminUserUpdateRequest, token: str):
             f"""UPDATE usersadmin SET {', '.join(set_parts)}, updated_at = CURRENT_TIMESTAMP
                WHERE id = %s
                RETURNING id, nombre, apellido_paterno, apellido_materno, curp, correo, telefono,
-                         rol, estatus, created_at""",
+                         rol, estatus, created_at, COALESCE(permisos, '[]'::jsonb) as permisos""",
             values,
         )
         row = cur.fetchone()
@@ -456,6 +456,7 @@ def update_usuario(user_id: int, data: AdminUserUpdateRequest, token: str):
         rol=row["rol"],
         estatus=row["estatus"],
         created_at=row["created_at"].isoformat(),
+        permisos=row["permisos"] or [],
     )
 
 

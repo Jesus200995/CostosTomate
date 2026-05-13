@@ -40,6 +40,10 @@ export const authService = {
     const res = await api.post('/admin/usuarios', data)
     return res.data
   },
+  async updateUsuario(userId: number, data: Record<string, any>): Promise<AdminUser> {
+    const res = await api.put(`/admin/usuarios/${userId}`, data)
+    return res.data
+  },
   async deleteUsuario(userId: number): Promise<void> {
     await api.delete(`/admin/usuarios/${userId}`)
   },
