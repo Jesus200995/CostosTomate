@@ -20,7 +20,7 @@ const router = createRouter({
       path: '/',
       name: 'Dashboard',
       component: () => import('@/views/DashboardView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true, permiso: 'dashboard' }
     },
     {
       path: '/visor',
@@ -44,25 +44,25 @@ const router = createRouter({
       path: '/centrales',
       name: 'Centrales',
       component: () => import('@/views/CentralesView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, permiso: 'centrales' }
     },
     {
       path: '/propuestas',
       name: 'Propuestas',
       component: () => import('@/views/PropuestasView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, permiso: 'propuestas' }
     },
     {
       path: '/usuarios',
       name: 'Usuarios',
       component: () => import('@/views/UsuariosView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, permiso: 'administradores' }
     },
     {
       path: '/capturistas',
       name: 'Capturistas',
       component: () => import('@/views/CapturistasView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, permiso: 'capturistas' }
     },
     {
       path: '/permisos',
@@ -101,7 +101,7 @@ router.beforeEach(async (to, _from, next) => {
     return next('/')
   }
 
-  if (to.meta.permiso && auth.user?.rol !== 'administrador') {
+  if (to.meta.permiso && to.meta.permiso !== 'dashboard' && auth.user?.rol !== 'administrador') {
     if (!auth.hasPermiso(to.meta.permiso as string)) {
       return next('/')
     }

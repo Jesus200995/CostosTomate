@@ -262,14 +262,19 @@ import AdminLayout from '@/components/AdminLayout.vue'
 import type { AdminUser } from '@/types'
 import {
   ShieldCheck, User, UserCheck, UserX, X, UserPlus, Pencil,
-  Map, ClipboardList, Bell,
+  Map, ClipboardList, Bell, Building2, FileCheck, Shield, Users, LayoutDashboard,
   KeyRound, UserCog, Save, CheckCircle, XCircle
 } from 'lucide-vue-next'
 
 const VISTAS = [
-  { key: 'visor',      label: 'Mapa / Visor',      desc: 'Ver mapa interactivo de centrales y precios',  icon: markRaw(Map) },
-  { key: 'reportes',   label: 'Reportes',           desc: 'Consultar reportes de precios de jitomate',    icon: markRaw(ClipboardList) },
-  { key: 'alertas',    label: 'Alertas',            desc: 'Ver y gestionar alertas activas del sistema',  icon: markRaw(Bell) },
+  { key: 'dashboard',       label: 'Dashboard',       desc: 'Panel principal con métricas y resumen',           icon: markRaw(LayoutDashboard) },
+  { key: 'visor',           label: 'Mapa',            desc: 'Mapa interactivo de centrales y precios',          icon: markRaw(Map) },
+  { key: 'reportes',        label: 'Reportes',        desc: 'Reportes de precios de jitomate',                  icon: markRaw(ClipboardList) },
+  { key: 'alertas',         label: 'Alertas',         desc: 'Alertas activas del sistema',                      icon: markRaw(Bell) },
+  { key: 'centrales',       label: 'Centrales',       desc: 'Gestión de centrales de abasto',                   icon: markRaw(Building2) },
+  { key: 'propuestas',      label: 'Propuestas',      desc: 'Revisión y aprobación de propuestas',              icon: markRaw(FileCheck) },
+  { key: 'administradores', label: 'Administradores', desc: 'Gestión de usuarios administradores',              icon: markRaw(Shield) },
+  { key: 'capturistas',     label: 'Capturistas',     desc: 'Gestión de usuarios capturistas del sistema',      icon: markRaw(Users) },
 ]
 
 const auth = useAuthStore()

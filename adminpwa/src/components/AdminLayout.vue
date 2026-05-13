@@ -58,24 +58,28 @@
           <Bell :size="18" /><span>Alertas</span>
         </router-link>
 
-        <div class="sidebar-nav-label">Gestión</div>
-        <router-link to="/centrales" class="nav-item" :class="{ active: $route.path === '/centrales' }" @click="closeMobile">
-          <Building2 :size="18" /><span>Centrales</span>
-        </router-link>
-        <router-link to="/propuestas" class="nav-item" :class="{ active: $route.path === '/propuestas' }" @click="closeMobile">
-          <FileCheck :size="18" /><span>Propuestas</span>
-        </router-link>
+        <template v-if="auth.hasPermiso('centrales') || auth.hasPermiso('propuestas')">
+          <div class="sidebar-nav-label">Gestión</div>
+          <router-link v-if="auth.hasPermiso('centrales')" to="/centrales" class="nav-item" :class="{ active: $route.path === '/centrales' }" @click="closeMobile">
+            <Building2 :size="18" /><span>Centrales</span>
+          </router-link>
+          <router-link v-if="auth.hasPermiso('propuestas')" to="/propuestas" class="nav-item" :class="{ active: $route.path === '/propuestas' }" @click="closeMobile">
+            <FileCheck :size="18" /><span>Propuestas</span>
+          </router-link>
+        </template>
 
-        <div class="sidebar-nav-label" v-if="auth.isAdmin">Usuarios</div>
-        <router-link v-if="auth.isAdmin" to="/usuarios" class="nav-item" :class="{ active: $route.path === '/usuarios' }" @click="closeMobile">
-          <Shield :size="18" /><span>Administradores</span>
-        </router-link>
-        <router-link v-if="auth.isAdmin" to="/capturistas" class="nav-item" :class="{ active: $route.path === '/capturistas' }" @click="closeMobile">
-          <Users :size="18" /><span>Capturistas</span>
-        </router-link>
-        <router-link v-if="auth.isAdmin" to="/permisos" class="nav-item" :class="{ active: $route.path === '/permisos' }" @click="closeMobile">
-          <ShieldCheck :size="18" /><span>Permisos Usuarios</span>
-        </router-link>
+        <template v-if="auth.hasPermiso('administradores') || auth.hasPermiso('capturistas') || auth.isAdmin">
+          <div class="sidebar-nav-label">Usuarios</div>
+          <router-link v-if="auth.hasPermiso('administradores')" to="/usuarios" class="nav-item" :class="{ active: $route.path === '/usuarios' }" @click="closeMobile">
+            <Shield :size="18" /><span>Administradores</span>
+          </router-link>
+          <router-link v-if="auth.hasPermiso('capturistas')" to="/capturistas" class="nav-item" :class="{ active: $route.path === '/capturistas' }" @click="closeMobile">
+            <Users :size="18" /><span>Capturistas</span>
+          </router-link>
+          <router-link v-if="auth.isAdmin" to="/permisos" class="nav-item" :class="{ active: $route.path === '/permisos' }" @click="closeMobile">
+            <ShieldCheck :size="18" /><span>Permisos Usuarios</span>
+          </router-link>
+        </template>
       </nav>
 
       <div class="sidebar-footer">
