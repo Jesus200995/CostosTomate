@@ -39,9 +39,6 @@
         </button>
       </form>
 
-      <div class="auth-footer">
-        <p>¿No tienes cuenta? <router-link to="/register">Regístrate</router-link></p>
-      </div>
     </div>
   </div>
 </template>
