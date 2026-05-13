@@ -89,7 +89,7 @@
               <th class="th-price">3ra Calidad</th>
               <th>Capturista</th>
               <th class="th-center">Tardía</th>
-              <th class="th-center">Acciones</th>
+              <th v-if="auth.hasPermiso('reportes:acciones')" class="th-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -135,7 +135,7 @@
                 <span v-if="r.captura_tardia" class="badge badge--late">Tardía</span>
                 <span v-else class="text-muted">—</span>
               </td>
-              <td class="td-center">
+              <td v-if="auth.hasPermiso('reportes:acciones')" class="td-center">
                 <button
                   class="btn-action"
                   :disabled="deletingIds.has(r.id)"
@@ -230,9 +230,12 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
 import { authService } from '@/services/auth.service'
+import { useAuthStore } from '@/stores/auth'
 import AdminLayout from '@/components/AdminLayout.vue'
 import type { ReporteJitomate } from '@/types'
 import { ClipboardList, Trash2, Search, RefreshCw } from 'lucide-vue-next'
+
+const auth = useAuthStore()
 
 // ── State ──────────────────────────────────────────────────────────
 const loading = ref(false)

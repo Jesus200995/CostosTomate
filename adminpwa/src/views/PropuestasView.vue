@@ -33,7 +33,7 @@
           <span>{{ formatDate(p.created_at) }}</span>
         </div>
         <div v-if="p.motivo_rechazo" class="prop-motivo">Motivo: {{ p.motivo_rechazo }}</div>
-        <div v-if="p.estatus === 'pendiente'" class="prop-actions">
+        <div v-if="p.estatus === 'pendiente' && auth.hasPermiso('propuestas:acciones')" class="prop-actions">
           <button class="btn btn--success btn--sm" @click="autorizar(p.id)" :disabled="actionLoading">Autorizar</button>
           <button class="btn btn--danger btn--sm" @click="rechazar(p.id)" :disabled="actionLoading">Rechazar</button>
         </div>
@@ -45,9 +45,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { authService } from '@/services/auth.service'
+import { useAuthStore } from '@/stores/auth'
 import AdminLayout from '@/components/AdminLayout.vue'
 import type { PropuestaCentral } from '@/types'
 import { FileCheck, MapPin, User } from 'lucide-vue-next'
+
+const auth = useAuthStore()
 
 const loading = ref(false)
 const actionLoading = ref(false)

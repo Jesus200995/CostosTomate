@@ -17,7 +17,7 @@
           <thead>
             <tr>
               <th>Nombre</th><th>Email</th><th>CURP</th><th>Tipo</th>
-              <th>Estado / Municipio</th><th>Registro</th><th class="th-actions">Acciones</th>
+              <th>Estado / Municipio</th><th>Registro</th><th v-if="auth.hasPermiso('capturistas:acciones')" class="th-actions">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -28,7 +28,7 @@
               <td><span class="badge badge--primary">{{ u.tipo_capturista || 'CAPTURISTA' }}</span></td>
               <td>{{ u.estado || '—' }} / {{ getMuniName(u.municipio) }}</td>
               <td>{{ formatDate(u.created_at) }}</td>
-              <td>
+              <td v-if="auth.hasPermiso('capturistas:acciones')">
                 <div class="actions-cell">
                   <button class="act-btn act-btn--view" title="Ver detalle" @click="openView(u)"><Eye :size="15" /></button>
                   <button class="act-btn act-btn--edit" title="Editar" @click="openEdit(u)"><Pencil :size="15" /></button>
@@ -36,7 +36,7 @@
                 </div>
               </td>
             </tr>
-            <tr v-if="!filtered.length"><td colspan="7" class="empty-state">Sin capturistas</td></tr>
+            <tr v-if="!filtered.length"><td :colspan="auth.hasPermiso('capturistas:acciones') ? 7 : 6" class="empty-state">Sin capturistas</td></tr>
           </tbody>
         </table>
       </div>
@@ -161,10 +161,12 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { authService } from '@/services/auth.service'
+import { useAuthStore } from '@/stores/auth'
 import AdminLayout from '@/components/AdminLayout.vue'
 import type { PWAUser } from '@/types'
 import { Users, Eye, Pencil, Trash2, X } from 'lucide-vue-next'
 
+const auth = useAuthStore()
 const loading = ref(false)
 const saving = ref(false)
 const deleting = ref(false)

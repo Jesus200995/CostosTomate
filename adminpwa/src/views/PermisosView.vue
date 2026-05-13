@@ -92,6 +92,9 @@
               <button class="modal__close mclose--light" @click="showCreate = false"><X :size="18" /></button>
             </div>
             <div class="modal__body">
+
+              <!-- Sección: Datos personales -->
+              <div class="sec-title"><UserCog :size="15" /> Datos personales</div>
               <div class="form-grid">
                 <div class="fg"><label class="fl">Nombre *</label><input v-model="createForm.nombre" class="finput" placeholder="Nombre" /></div>
                 <div class="fg"><label class="fl">Apellido Paterno *</label><input v-model="createForm.apellido_paterno" class="finput" placeholder="Apellido Paterno" /></div>
@@ -100,35 +103,62 @@
                 <div class="fg"><label class="fl">Correo *</label><input v-model="createForm.correo" class="finput" type="email" placeholder="correo@ejemplo.com" /></div>
                 <div class="fg"><label class="fl">Teléfono *</label><input v-model="createForm.telefono" class="finput" placeholder="10 dígitos" maxlength="10" /></div>
                 <div class="fg"><label class="fl">Contraseña *</label><input v-model="createForm.password" class="finput" type="password" placeholder="Mínimo 6 caracteres" /></div>
-                <div class="fg"><label class="fl">Rol</label>
-                  <select v-model="createForm.rol" class="finput">
-                    <option value="usuario">Usuario</option>
-                    <option value="administrador">Administrador</option>
-                  </select>
+              </div>
+
+              <!-- Sección: Rol y Estatus -->
+              <div class="sec-title"><ShieldCheck :size="15" /> Rol de acceso</div>
+              <div class="rol-grid">
+                <div class="rol-card" :class="{ 'rol-card--active': createForm.rol === 'usuario' }" @click="createForm.rol = 'usuario'">
+                  <User :size="22" /><div class="rol-card__label">Usuario</div>
+                  <div class="rol-card__desc">Acceso según permisos</div>
+                  <div class="rol-radio"><span v-if="createForm.rol === 'usuario'" class="rol-radio__dot"></span></div>
+                </div>
+                <div class="rol-card" :class="{ 'rol-card--active rol-card--admin': createForm.rol === 'administrador' }" @click="createForm.rol = 'administrador'">
+                  <ShieldCheck :size="22" /><div class="rol-card__label">Administrador</div>
+                  <div class="rol-card__desc">Acceso completo</div>
+                  <div class="rol-radio"><span v-if="createForm.rol === 'administrador'" class="rol-radio__dot rol-radio__dot--admin"></span></div>
                 </div>
               </div>
-              <div v-if="createForm.rol === 'usuario'" class="permisos-section">
-                <div class="permisos-sec-title">
-                  <KeyRound :size="16" />
-                  <span>Acceso a vistas</span>
-                  <span class="permisos-hint">Activa las secciones a las que tendrá acceso</span>
-                </div>
-                <div class="permisos-list">
-                  <div v-for="v in VISTAS" :key="v.key" class="permiso-row" :class="{ 'permiso-row--on': createForm.permisos.includes(v.key) }">
-                    <div class="permiso-row__icon"><component :is="v.icon" :size="18" /></div>
-                    <div class="permiso-row__info">
-                      <span class="permiso-row__label">{{ v.label }}</span>
-                      <span class="permiso-row__desc">{{ v.desc }}</span>
-                    </div>
-                    <label class="sw">
-                      <input type="checkbox" :value="v.key" v-model="createForm.permisos" class="sw__input" />
-                      <span class="sw__track"><span class="sw__thumb"></span></span>
-                    </label>
+
+              <!-- Sección: Permisos (reactivo al rol) -->
+              <Transition name="permisos-fade">
+                <div v-if="createForm.rol === 'usuario'" class="permisos-section">
+                  <div class="sec-title"><KeyRound :size="15" /> Permisos de acceso <span class="sec-hint">Activa las secciones disponibles</span></div>
+                  <div class="permisos-list">
+                    <template v-for="v in VISTAS" :key="v.key">
+                      <div class="permiso-row" :class="{ 'permiso-row--on': createForm.permisos.includes(v.key) }">
+                        <div class="permiso-row__icon"><component :is="v.icon" :size="17" /></div>
+                        <div class="permiso-row__info">
+                          <span class="permiso-row__label">{{ v.label }}</span>
+                          <span class="permiso-row__desc">{{ v.desc }}</span>
+                        </div>
+                        <label class="sw">
+                          <input type="checkbox" :value="v.key" v-model="createForm.permisos" class="sw__input" />
+                          <span class="sw__track"><span class="sw__thumb"></span></span>
+                        </label>
+                      </div>
+                      <!-- Sub-panel Acciones -->
+                      <Transition name="sub-fade">
+                        <div v-if="v.subAccion && createForm.permisos.includes(v.key)" class="sub-panel">
+                          <div class="sub-panel__row">
+                            <div class="sub-panel__icon"><Zap :size="13" /></div>
+                            <div class="sub-panel__info">
+                              <span class="sub-panel__label">Columna de Acciones</span>
+                              <span class="sub-panel__desc">Ver y usar botones de acción en {{ v.label }}</span>
+                            </div>
+                            <label class="sw sw--sm">
+                              <input type="checkbox" :value="v.key + ':acciones'" v-model="createForm.permisos" class="sw__input" />
+                              <span class="sw__track"><span class="sw__thumb"></span></span>
+                            </label>
+                          </div>
+                        </div>
+                      </Transition>
+                    </template>
                   </div>
                 </div>
-              </div>
-              <div v-else class="admin-note">
-                <ShieldCheck :size="18" /><span>Acceso completo a todas las vistas como Administrador.</span>
+              </Transition>
+              <div v-if="createForm.rol === 'administrador'" class="admin-note">
+                <ShieldCheck :size="18" /><span>Los administradores tienen acceso completo a todas las vistas y acciones.</span>
               </div>
             </div>
             <div class="modal__footer">
@@ -150,6 +180,8 @@
               <button class="modal__close mclose--light" @click="closeEdit"><X :size="18" /></button>
             </div>
             <div class="modal__body">
+
+              <!-- Mini card -->
               <div class="user-mini-card">
                 <div class="umc__avatar">{{ initials(editTarget) }}</div>
                 <div>
@@ -158,20 +190,9 @@
                 </div>
               </div>
 
-              <div class="edit-tabs">
-                <button class="etab" :class="{ 'etab--active': editTab === 'datos' }" @click="editTab = 'datos'">
-                  <UserCog :size="14" /> Datos
-                </button>
-                <button class="etab" :class="{ 'etab--active': editTab === 'permisos' }" @click="editTab = 'permisos'">
-                  <KeyRound :size="14" /> Permisos
-                </button>
-                <button class="etab" :class="{ 'etab--active': editTab === 'rol' }" @click="editTab = 'rol'">
-                  <ShieldCheck :size="14" /> Rol / Estatus
-                </button>
-              </div>
-
-              <!-- TAB: Datos -->
-              <div v-if="editTab === 'datos'" class="form-grid" style="margin-top:1rem">
+              <!-- Sección: Datos -->
+              <div class="sec-title"><UserCog :size="15" /> Datos personales</div>
+              <div class="form-grid">
                 <div class="fg"><label class="fl">Nombre</label><input v-model="editForm.nombre" class="finput" /></div>
                 <div class="fg"><label class="fl">Apellido Paterno</label><input v-model="editForm.apellido_paterno" class="finput" /></div>
                 <div class="fg"><label class="fl">Apellido Materno</label><input v-model="editForm.apellido_materno" class="finput" /></div>
@@ -180,57 +201,79 @@
                 <div class="fg"><label class="fl">Teléfono</label><input v-model="editForm.telefono" class="finput" /></div>
               </div>
 
-              <!-- TAB: Permisos -->
-              <div v-if="editTab === 'permisos'" style="margin-top:1rem">
-                <div v-if="editTarget.rol === 'administrador'" class="admin-note">
-                  <ShieldCheck :size="18" /><span>Los administradores tienen acceso completo. Cambia el rol a Usuario para gestionar permisos individuales.</span>
+              <!-- Sección: Rol -->
+              <div class="sec-title"><ShieldCheck :size="15" /> Rol de acceso</div>
+              <div class="rol-grid">
+                <div class="rol-card" :class="{ 'rol-card--active': editForm.rol === 'usuario' }"
+                  @click="editTarget.id !== auth.user?.id && (editForm.rol = 'usuario')">
+                  <User :size="22" /><div class="rol-card__label">Usuario</div>
+                  <div class="rol-card__desc">Acceso según permisos</div>
+                  <div class="rol-radio"><span v-if="editForm.rol === 'usuario'" class="rol-radio__dot"></span></div>
                 </div>
-                <div v-else class="permisos-list">
-                  <div v-for="v in VISTAS" :key="v.key" class="permiso-row" :class="{ 'permiso-row--on': editPermisos.includes(v.key) }">
-                    <div class="permiso-row__icon"><component :is="v.icon" :size="18" /></div>
-                    <div class="permiso-row__info">
-                      <span class="permiso-row__label">{{ v.label }}</span>
-                      <span class="permiso-row__desc">{{ v.desc }}</span>
-                    </div>
-                    <label class="sw">
-                      <input type="checkbox" :value="v.key" v-model="editPermisos" class="sw__input" @change="onPermisosChange" />
-                      <span class="sw__track"><span class="sw__thumb"></span></span>
-                    </label>
-                  </div>
+                <div class="rol-card" :class="{ 'rol-card--active rol-card--admin': editForm.rol === 'administrador' }"
+                  @click="editTarget.id !== auth.user?.id && (editForm.rol = 'administrador')">
+                  <ShieldCheck :size="22" /><div class="rol-card__label">Administrador</div>
+                  <div class="rol-card__desc">Acceso completo</div>
+                  <div class="rol-radio"><span v-if="editForm.rol === 'administrador'" class="rol-radio__dot rol-radio__dot--admin"></span></div>
                 </div>
               </div>
 
-              <!-- TAB: Rol / Estatus -->
-              <div v-if="editTab === 'rol'" style="margin-top:1rem">
-                <div class="rol-grid">
-                  <div class="rol-card" :class="{ 'rol-card--active': editForm.rol === 'usuario' }" @click="editForm.rol = 'usuario'">
-                    <User :size="24" />
-                    <div class="rol-card__label">Usuario</div>
-                    <div class="rol-card__desc">Acceso limitado según permisos</div>
-                    <div class="rol-radio"><span v-if="editForm.rol === 'usuario'" class="rol-radio__dot"></span></div>
-                  </div>
-                  <div class="rol-card" :class="{ 'rol-card--active rol-card--admin': editForm.rol === 'administrador', 'rol-card--admin-passive': editForm.rol !== 'administrador' }" @click="editTarget.id !== auth.user?.id && (editForm.rol = 'administrador')">
-                    <ShieldCheck :size="24" />
-                    <div class="rol-card__label">Administrador</div>
-                    <div class="rol-card__desc">Acceso completo al sistema</div>
-                    <div class="rol-radio"><span v-if="editForm.rol === 'administrador'" class="rol-radio__dot rol-radio__dot--admin"></span></div>
+              <!-- Sección: Estatus -->
+              <div class="estatus-row">
+                <div class="estatus-info">
+                  <component :is="editForm.estatus === 'activo' ? CheckCircle : XCircle" :size="18" :class="editForm.estatus === 'activo' ? 'ico--green' : 'ico--red'" />
+                  <div>
+                    <span class="estatus-label">Estatus de la cuenta</span>
+                    <span :class="editForm.estatus === 'activo' ? 'estatus-val--active' : 'estatus-val--inactive'">{{ editForm.estatus }}</span>
                   </div>
                 </div>
-                <div class="estatus-row">
-                  <div class="estatus-info">
-                    <component :is="editForm.estatus === 'activo' ? CheckCircle : XCircle" :size="18" :class="editForm.estatus === 'activo' ? 'ico--green' : 'ico--red'" />
-                    <div>
-                      <span class="estatus-label">Estatus de la cuenta</span>
-                      <span :class="editForm.estatus === 'activo' ? 'estatus-val--active' : 'estatus-val--inactive'">{{ editForm.estatus }}</span>
-                    </div>
+                <label class="sw sw--lg" v-if="editTarget.id !== auth.user?.id">
+                  <input type="checkbox" :checked="editForm.estatus === 'activo'" class="sw__input"
+                    @change="editForm.estatus = editForm.estatus === 'activo' ? 'inactivo' : 'activo'" />
+                  <span class="sw__track"><span class="sw__thumb"></span></span>
+                </label>
+                <span v-else class="self-note">No puedes modificar tu propia cuenta</span>
+              </div>
+
+              <!-- Sección: Permisos (reactivo al rol) -->
+              <Transition name="permisos-fade">
+                <div v-if="editForm.rol === 'usuario'" class="permisos-section">
+                  <div class="sec-title"><KeyRound :size="15" /> Permisos de acceso <span class="sec-hint">Cambian al instante</span></div>
+                  <div class="permisos-list">
+                    <template v-for="v in VISTAS" :key="v.key">
+                      <div class="permiso-row" :class="{ 'permiso-row--on': editPermisos.includes(v.key) }">
+                        <div class="permiso-row__icon"><component :is="v.icon" :size="17" /></div>
+                        <div class="permiso-row__info">
+                          <span class="permiso-row__label">{{ v.label }}</span>
+                          <span class="permiso-row__desc">{{ v.desc }}</span>
+                        </div>
+                        <label class="sw">
+                          <input type="checkbox" :value="v.key" v-model="editPermisos" class="sw__input" @change="onPermisosChange" />
+                          <span class="sw__track"><span class="sw__thumb"></span></span>
+                        </label>
+                      </div>
+                      <!-- Sub-panel Acciones -->
+                      <Transition name="sub-fade">
+                        <div v-if="v.subAccion && editPermisos.includes(v.key)" class="sub-panel">
+                          <div class="sub-panel__row">
+                            <div class="sub-panel__icon"><Zap :size="13" /></div>
+                            <div class="sub-panel__info">
+                              <span class="sub-panel__label">Columna de Acciones</span>
+                              <span class="sub-panel__desc">Ver y usar botones de acción en {{ v.label }}</span>
+                            </div>
+                            <label class="sw sw--sm">
+                              <input type="checkbox" :value="v.key + ':acciones'" v-model="editPermisos" class="sw__input" @change="onPermisosChange" />
+                              <span class="sw__track"><span class="sw__thumb"></span></span>
+                            </label>
+                          </div>
+                        </div>
+                      </Transition>
+                    </template>
                   </div>
-                  <label class="sw sw--lg" v-if="editTarget.id !== auth.user?.id">
-                    <input type="checkbox" :checked="editForm.estatus === 'activo'" class="sw__input"
-                      @change="editForm.estatus = editForm.estatus === 'activo' ? 'inactivo' : 'activo'" />
-                    <span class="sw__track"><span class="sw__thumb"></span></span>
-                  </label>
-                  <span v-else class="self-note">No puedes modificar tu propia cuenta</span>
                 </div>
+              </Transition>
+              <div v-if="editForm.rol === 'administrador'" class="admin-note" style="margin-top:1rem">
+                <ShieldCheck :size="18" /><span>Los administradores tienen acceso completo a todas las vistas y acciones.</span>
               </div>
             </div>
             <div class="modal__footer">
@@ -263,18 +306,18 @@ import type { AdminUser } from '@/types'
 import {
   ShieldCheck, User, UserCheck, UserX, X, UserPlus, Pencil,
   Map, ClipboardList, Bell, Building2, FileCheck, Shield, Users, LayoutDashboard,
-  KeyRound, UserCog, Save, CheckCircle, XCircle
+  KeyRound, UserCog, Save, CheckCircle, XCircle, Zap
 } from 'lucide-vue-next'
 
 const VISTAS = [
-  { key: 'dashboard',       label: 'Dashboard',       desc: 'Panel principal con métricas y resumen',           icon: markRaw(LayoutDashboard) },
-  { key: 'visor',           label: 'Mapa',            desc: 'Mapa interactivo de centrales y precios',          icon: markRaw(Map) },
-  { key: 'reportes',        label: 'Reportes',        desc: 'Reportes de precios de jitomate',                  icon: markRaw(ClipboardList) },
-  { key: 'alertas',         label: 'Alertas',         desc: 'Alertas activas del sistema',                      icon: markRaw(Bell) },
-  { key: 'centrales',       label: 'Centrales',       desc: 'Gestión de centrales de abasto',                   icon: markRaw(Building2) },
-  { key: 'propuestas',      label: 'Propuestas',      desc: 'Revisión y aprobación de propuestas',              icon: markRaw(FileCheck) },
-  { key: 'administradores', label: 'Administradores', desc: 'Gestión de usuarios administradores',              icon: markRaw(Shield) },
-  { key: 'capturistas',     label: 'Capturistas',     desc: 'Gestión de usuarios capturistas del sistema',      icon: markRaw(Users) },
+  { key: 'dashboard',       label: 'Dashboard',       desc: 'Panel principal con métricas y resumen',           icon: markRaw(LayoutDashboard), subAccion: false },
+  { key: 'visor',           label: 'Mapa',            desc: 'Mapa interactivo de centrales y precios',          icon: markRaw(Map),            subAccion: false },
+  { key: 'reportes',        label: 'Reportes',        desc: 'Reportes de precios de jitomate',                  icon: markRaw(ClipboardList),  subAccion: true  },
+  { key: 'alertas',         label: 'Alertas',         desc: 'Alertas activas del sistema',                      icon: markRaw(Bell),           subAccion: false },
+  { key: 'centrales',       label: 'Centrales',       desc: 'Gestión de centrales de abasto',                   icon: markRaw(Building2),      subAccion: true  },
+  { key: 'propuestas',      label: 'Propuestas',      desc: 'Revisión y aprobación de propuestas',              icon: markRaw(FileCheck),      subAccion: true  },
+  { key: 'administradores', label: 'Administradores', desc: 'Gestión de usuarios administradores',              icon: markRaw(Shield),         subAccion: false },
+  { key: 'capturistas',     label: 'Capturistas',     desc: 'Gestión de usuarios capturistas del sistema',      icon: markRaw(Users),          subAccion: true  },
 ]
 
 const auth = useAuthStore()
@@ -287,7 +330,6 @@ const filtroEstatus = ref('')
 
 const showCreate = ref(false)
 const editTarget = ref<AdminUser | null>(null)
-const editTab = ref<'datos' | 'permisos' | 'rol'>('datos')
 const toast = ref<{ text: string; type: string } | null>(null)
 
 const editPermisos = ref<string[]>([])
@@ -320,7 +362,6 @@ function openCreate() {
 
 function openEdit(u: AdminUser) {
   editTarget.value = u
-  editTab.value = 'datos'
   editForm.value = { nombre: u.nombre, apellido_paterno: u.apellido_paterno, apellido_materno: u.apellido_materno, curp: u.curp, correo: u.correo, telefono: u.telefono, rol: u.rol, estatus: u.estatus }
   editPermisos.value = [...(u.permisos || [])]
 }
@@ -540,10 +581,25 @@ onMounted(load)
 .umc__name { font-size: 0.95rem; font-weight: 700; color: #222; }
 .umc__email { font-size: 0.78rem; color: #999; }
 
-/* ── Edit tabs ── */
-.edit-tabs { display: flex; gap: 6px; background: #f5f5f5; border-radius: 12px; padding: 4px; }
-.etab { display: flex; align-items: center; gap: 5px; padding: 7px 14px; border: none; border-radius: 9px; background: transparent; color: #666; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all .15s; }
-.etab--active { background: #fff; color: #283593; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+/* ── Section titles ── */
+.sec-title { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.04em; margin: 1.1rem 0 0.6rem; border-left: 3px solid #3949ab; padding-left: 0.6rem; }
+.sec-hint { font-size: 0.7rem; font-weight: 400; color: #aaa; text-transform: none; letter-spacing: 0; margin-left: auto; }
+
+/* ── Sub-panel ── */
+.sub-panel { margin: -4px 0 6px 48px; padding: 0.6rem 0.85rem; background: #f8f9ff; border: 1.5px solid #c5cae9; border-radius: 0 0 12px 12px; border-top: none; }
+.sub-panel__row { display: flex; align-items: center; gap: 0.75rem; }
+.sub-panel__icon { width: 26px; height: 26px; border-radius: 8px; background: #e8eaf6; color: #3949ab; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sub-panel__info { flex: 1; }
+.sub-panel__label { display: block; font-size: 0.82rem; font-weight: 600; color: #333; }
+.sub-panel__desc { display: block; font-size: 0.71rem; color: #999; }
+
+/* ── Transitions ── */
+.permisos-fade-enter-active { transition: all .35s ease; }
+.permisos-fade-leave-active { transition: all .2s ease; }
+.permisos-fade-enter-from, .permisos-fade-leave-to { opacity: 0; transform: translateY(-8px); }
+.sub-fade-enter-active { transition: all .25s ease; }
+.sub-fade-leave-active { transition: all .15s ease; }
+.sub-fade-enter-from, .sub-fade-leave-to { opacity: 0; transform: translateY(-4px); max-height: 0; }
 
 /* ── Rol cards ── */
 .rol-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }

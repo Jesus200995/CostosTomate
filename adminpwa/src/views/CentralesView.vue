@@ -27,7 +27,7 @@
         <thead>
           <tr>
             <th>ID</th><th>Nombre</th><th>Tipo</th><th>Municipio</th><th>Estado</th>
-            <th>Estatus</th><th>PWA</th><th>Coordenadas</th><th>Acciones</th>
+            <th>Estatus</th><th>PWA</th><th>Coordenadas</th><th v-if="auth.hasPermiso('centrales:acciones')">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -47,14 +47,14 @@
                 @click="togglePWA(c)">{{ c.visible_pwa ? 'Sí' : 'No' }}</button>
             </td>
             <td class="td-coords">{{ c.latitud ? c.latitud.toFixed(4) + ', ' + c.longitud?.toFixed(4) : '—' }}</td>
-            <td>
+            <td v-if="auth.hasPermiso('centrales:acciones')">
               <div class="action-btns">
                 <button v-if="c.estatus !== 'autorizado'" class="btn-action btn-ok" @click="setEstatus(c, 'autorizado')"><Check :size="14" /></button>
                 <button v-if="c.estatus !== 'inactivo'" class="btn-action btn-no" @click="setEstatus(c, 'inactivo')"><X :size="14" /></button>
               </div>
             </td>
           </tr>
-          <tr v-if="!filtered.length"><td colspan="9" class="empty-state">Sin centrales</td></tr>
+          <tr v-if="!filtered.length"><td :colspan="auth.hasPermiso('centrales:acciones') ? 9 : 8" class="empty-state">Sin centrales</td></tr>
         </tbody>
       </table>
     </div>
@@ -64,9 +64,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { authService } from '@/services/auth.service'
+import { useAuthStore } from '@/stores/auth'
 import AdminLayout from '@/components/AdminLayout.vue'
 import type { Central } from '@/types'
 import { Building2, Check, X } from 'lucide-vue-next'
+
+const auth = useAuthStore()
 
 const loading = ref(false)
 const centrales = ref<Central[]>([])
