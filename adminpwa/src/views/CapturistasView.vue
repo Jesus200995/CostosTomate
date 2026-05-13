@@ -2,7 +2,20 @@
   <AdminLayout>
     <div class="cap-page">
       <div class="top-bar">
-        <h1 class="top-bar__title"><Users :size="22" /> Capturistas PWA</h1>
+        <div class="top-bar__tomatoes">
+          <svg v-for="i in 18" :key="i" class="tomato-bg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+            <ellipse cx="20" cy="25" rx="11" ry="9.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+            <line x1="20" y1="15.5" x2="20" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M20,16 C17,13 12.5,13.5 11.5,16.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M20,16 C23,13 27.5,13.5 28.5,16.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M20,15.5 C19,12 17,9 15.5,8.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M20,15.5 C21,12 23,9 24.5,8.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="top-bar__text">
+          <h1 class="top-bar__title"><Users :size="22" /> Capturistas</h1>
+          <span class="top-bar__subtitle">Usuarios registrados en la aplicación móvil</span>
+        </div>
         <span class="top-bar__count">{{ filtered.length }} de {{ usuarios.length }}</span>
       </div>
 
@@ -317,10 +330,20 @@ onMounted(load)
 .top-bar {
   display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
   background: linear-gradient(135deg, #B71C1C, #D32F2F); border-radius: 14px;
-  padding: 0.85rem 1.5rem; margin-bottom: 0.75rem; box-shadow: 0 4px 16px rgba(183,28,28,0.15);
+  padding: 0.85rem 1.5rem; margin-bottom: 0.75rem; box-shadow: 0 4px 16px rgba(183,28,28,0.2);
+  position: relative; overflow: hidden;
 }
+.top-bar__tomatoes {
+  position: absolute; inset: 0; display: flex; flex-wrap: wrap; align-items: center;
+  gap: 0px; padding: 4px 8px; pointer-events: none; overflow: hidden;
+}
+.tomato-bg-icon {
+  width: 36px; height: 36px; color: #7f0000; opacity: 0.35; flex-shrink: 0;
+}
+.top-bar__text { display: flex; flex-direction: column; gap: 2px; position: relative; z-index: 1; }
 .top-bar__title { font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
-.top-bar__count { font-size: 0.8rem; color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.15); padding: 3px 10px; border-radius: 8px; }
+.top-bar__subtitle { font-size: 0.75rem; color: rgba(255,255,255,0.75); font-weight: 400; padding-left: 2px; }
+.top-bar__count { font-size: 0.8rem; color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.18); padding: 3px 10px; border-radius: 8px; position: relative; z-index: 1; }
 .filters-bar {
   display: flex; gap: 0.5rem; flex-shrink: 0; margin-bottom: 0.75rem;
   background: #fff; padding: 0.6rem 0.75rem; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.04);
