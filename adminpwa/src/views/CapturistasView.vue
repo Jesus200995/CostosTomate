@@ -2,16 +2,7 @@
   <AdminLayout>
     <div class="cap-page">
       <div class="top-bar">
-        <div class="top-bar__tomatoes">
-          <svg v-for="i in 18" :key="i" class="tomato-bg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
-            <ellipse cx="20" cy="25" rx="11" ry="9.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
-            <line x1="20" y1="15.5" x2="20" y2="10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M20,16 C17,13 12.5,13.5 11.5,16.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            <path d="M20,16 C23,13 27.5,13.5 28.5,16.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            <path d="M20,15.5 C19,12 17,9 15.5,8.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            <path d="M20,15.5 C21,12 23,9 24.5,8.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-          </svg>
-        </div>
+        <div class="top-bar__pattern"></div>
         <div class="top-bar__text">
           <h1 class="top-bar__title"><Users :size="22" /> Capturistas</h1>
           <span class="top-bar__subtitle">Usuarios registrados en la aplicación móvil</span>
@@ -333,12 +324,11 @@ onMounted(load)
   padding: 0.85rem 1.5rem; margin-bottom: 0.75rem; box-shadow: 0 4px 16px rgba(183,28,28,0.2);
   position: relative; overflow: hidden;
 }
-.top-bar__tomatoes {
-  position: absolute; inset: 0; display: flex; flex-wrap: wrap; align-items: center;
-  gap: 0px; padding: 4px 8px; pointer-events: none; overflow: hidden;
-}
-.tomato-bg-icon {
-  width: 36px; height: 36px; color: #7f0000; opacity: 0.35; flex-shrink: 0;
+.top-bar__pattern {
+  position: absolute; inset: 0; pointer-events: none; border-radius: 14px; overflow: hidden;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cellipse cx='32' cy='38' rx='17' ry='15' fill='%23800000' opacity='0.5'/%3E%3Cellipse cx='32' cy='38' rx='17' ry='15' fill='none' stroke='%23600000' stroke-width='1' opacity='0.4'/%3E%3Cellipse cx='25' cy='30' rx='5' ry='3.5' fill='%23ff6060' opacity='0.15'/%3E%3Crect x='31' y='18' width='2.5' height='8' rx='1.2' fill='%231e4d0f' opacity='0.7'/%3E%3Cpath d='M32,24 C27,20 20,21 19,25 C23,23 28,24 32,26' fill='%231e4d0f' opacity='0.6'/%3E%3Cpath d='M32,24 C37,20 44,21 45,25 C41,23 36,24 32,26' fill='%231e4d0f' opacity='0.6'/%3E%3Cpath d='M32.5,22 C31,16 29,12 31.5,10 C34,12 34,17 32.5,22' fill='%231e4d0f' opacity='0.55'/%3E%3C/svg%3E");
+  background-size: 64px 64px;
+  background-repeat: repeat;
 }
 .top-bar__text { display: flex; flex-direction: column; gap: 2px; position: relative; z-index: 1; }
 .top-bar__title { font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
