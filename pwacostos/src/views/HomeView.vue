@@ -25,7 +25,7 @@
           </div>
           <div class="welcome-text">
             <h2 class="welcome-title">¡Bienvenido a CostosTomate!</h2>
-            <p class="welcome-desc">Para comenzar a registrar precios, primero agrega tu central de abasto. Es rápido y sencillo.</p>
+            <p class="welcome-desc">Para comenzar a registrar precios, primero agrega tu central. Es rápido y sencillo.</p>
           </div>
         </div>
         <button class="welcome-btn" @click="router.push('/centrales')">
