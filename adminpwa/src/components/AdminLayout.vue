@@ -73,6 +73,9 @@
         <router-link v-if="auth.isAdmin" to="/capturistas" class="nav-item" :class="{ active: $route.path === '/capturistas' }" @click="closeMobile">
           <Users :size="18" /><span>Capturistas</span>
         </router-link>
+        <router-link v-if="auth.isAdmin" to="/permisos" class="nav-item" :class="{ active: $route.path === '/permisos' }" @click="closeMobile">
+          <ShieldCheck :size="18" /><span>Permisos Usuarios</span>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
@@ -100,7 +103,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import {
   LayoutDashboard, Map as MapIcon, ClipboardList, Bell, Building2,
-  FileCheck, Shield, Users, LogOut, Menu
+  FileCheck, Shield, Users, LogOut, Menu, ShieldCheck
 } from 'lucide-vue-next'
 
 const router = useRouter()
