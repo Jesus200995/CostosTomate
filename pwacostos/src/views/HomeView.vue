@@ -17,6 +17,23 @@
         </div>
       </div>
 
+      <!-- Welcome Banner -->
+      <div class="welcome-banner" :class="{ 'welcome-banner--visible': mounted }">
+        <div class="welcome-content">
+          <div class="welcome-icon">
+            <MapPin :size="32" />
+          </div>
+          <div class="welcome-text">
+            <h2 class="welcome-title">¡Bienvenido a CostosTomate!</h2>
+            <p class="welcome-desc">Para comenzar a registrar precios, primero agrega tu central de abasto. Es rápido y sencillo.</p>
+          </div>
+        </div>
+        <button class="welcome-btn" @click="router.push('/centrales')">
+          <Plus :size="18" />
+          <span>Agregar mi central</span>
+        </button>
+      </div>
+
       <!-- Stats -->
       <div class="stats-grid" :class="{ 'stats-grid--visible': mounted }">
         <div class="stat-card stat-card--primary" @click="router.push('/centrales')">
@@ -164,7 +181,8 @@ import AppModal from '@/components/AppModal.vue'
 import AppToast from '@/components/AppToast.vue'
 import {
   Building2, Salad, ClipboardList, Calendar,
-  Zap, UserCircle, LogOut, Clock, Inbox, FileText
+  Zap, UserCircle, LogOut, Clock, Inbox, FileText,
+  MapPin, Plus
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -523,6 +541,189 @@ onMounted(() => {
   }
   .activity-card__date {
     font-size: 0.6rem;
+  }
+}
+
+/* Welcome Banner */
+.welcome-banner {
+  background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #43A047 100%);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  box-shadow: 0 8px 32px rgba(27, 94, 32, 0.25);
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.welcome-banner--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.welcome-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 40%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+.welcome-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 1;
+  flex: 1;
+}
+
+.welcome-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.welcome-text {
+  color: #fff;
+}
+
+.welcome-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  line-height: 1.2;
+}
+
+.welcome-desc {
+  font-size: 0.85rem;
+  margin: 0;
+  opacity: 0.95;
+  line-height: 1.3;
+}
+
+.welcome-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  color: #1B5E20;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.welcome-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.welcome-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  background: #fff;
+}
+
+.welcome-btn:hover::before {
+  left: 100%;
+}
+
+.welcome-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive for welcome banner */
+@media (max-width: 480px) {
+  .welcome-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .welcome-content {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .welcome-icon {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .welcome-title {
+    font-size: 1.1rem;
+  }
+  
+  .welcome-desc {
+    font-size: 0.8rem;
+  }
+  
+  .welcome-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .welcome-banner {
+    padding: 0.875rem;
+  }
+  
+  .welcome-icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .welcome-title {
+    font-size: 1rem;
+  }
+  
+  .welcome-desc {
+    font-size: 0.75rem;
   }
 }
 </style>

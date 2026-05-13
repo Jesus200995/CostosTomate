@@ -1,20 +1,5 @@
 <template>
   <AdminLayout>
-    <!-- Welcome Message -->
-    <div class="welcome-banner">
-      <div class="welcome-content">
-        <div class="welcome-icon"><MapPin :size="32" /></div>
-        <div class="welcome-text">
-          <h2 class="welcome-title">¡Bienvenido a CostosTomate!</h2>
-          <p class="welcome-desc">Para comenzar a registrar precios, primero agrega tu central de abasto. Es rápido y sencillo.</p>
-        </div>
-      </div>
-      <router-link to="/centrales" class="welcome-btn">
-        <Plus :size="18" />
-        <span>Agregar mi central</span>
-      </router-link>
-    </div>
-
     <!-- Top Bar -->
     <div class="top-bar">
       <div>
@@ -101,7 +86,7 @@ import AdminLayout from '@/components/AdminLayout.vue'
 import type { DashboardData } from '@/types'
 import {
   LayoutDashboard, RefreshCw, Building2, ClipboardList, Clock,
-  AlertTriangle, Map as MapIcon, Users, MapPin, Plus
+  AlertTriangle, Map as MapIcon, Users
 } from 'lucide-vue-next'
 
 const auth = useAuthStore()
@@ -128,124 +113,6 @@ onMounted(loadDashboard)
 </script>
 
 <style scoped>
-/* Welcome Banner */
-.welcome-banner {
-  background: linear-gradient(135deg, #B71C1C 0%, #D32F2F 50%, #E53935 100%);
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  box-shadow: 0 8px 32px rgba(183, 28, 28, 0.25);
-  position: relative;
-  overflow: hidden;
-}
-
-.welcome-banner::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 40%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-  animation: float 8s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(5deg); }
-}
-
-.welcome-content {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  z-index: 1;
-}
-
-.welcome-icon {
-  width: 64px;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  flex-shrink: 0;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.welcome-text {
-  color: #fff;
-}
-
-.welcome-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-  line-height: 1.2;
-}
-
-.welcome-desc {
-  font-size: 1rem;
-  margin: 0;
-  opacity: 0.95;
-  line-height: 1.4;
-}
-
-.welcome-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.95);
-  color: #B71C1C;
-  padding: 0.875rem 1.5rem;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  z-index: 1;
-  position: relative;
-  overflow: hidden;
-}
-
-.welcome-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transition: left 0.5s ease;
-}
-
-.welcome-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  background: #fff;
-}
-
-.welcome-btn:hover::before {
-  left: 100%;
-}
-
-.welcome-btn:active {
-  transform: translateY(0);
-}
-
 .top-bar {
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;
   background: linear-gradient(135deg, #B71C1C, #D32F2F); border-radius: 14px;
@@ -319,37 +186,6 @@ onMounted(loadDashboard)
 .action-card span { font-weight: 600; font-size: 0.85rem; }
 
 @media (max-width: 768px) {
-  .welcome-banner {
-    flex-direction: column;
-    text-align: center;
-    padding: 1.25rem;
-    gap: 1rem;
-  }
-  
-  .welcome-content {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .welcome-icon {
-    width: 56px;
-    height: 56px;
-  }
-  
-  .welcome-title {
-    font-size: 1.25rem;
-  }
-  
-  .welcome-desc {
-    font-size: 0.95rem;
-  }
-  
-  .welcome-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 1rem;
-  }
-  
   .section-grid { grid-template-columns: 1fr; }
   .calidades-grid { grid-template-columns: 1fr; }
   .top-bar { flex-direction: column; align-items: flex-start; }
