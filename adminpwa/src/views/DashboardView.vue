@@ -128,7 +128,7 @@ onMounted(loadDashboard)
 .top-bar__text { position: relative; z-index: 1; }
 .top-bar__title { font-size: 1.3rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
 .top-bar__desc { font-size: 0.82rem; color: rgba(255,255,255,0.8); margin: 0.1rem 0 0; text-transform: capitalize; }
-.top-bar__actions { display: flex; align-items: center; gap: 0.5rem; }
+.top-bar__actions { display: flex; align-items: center; gap: 0.5rem; position: relative; z-index: 1; }
 .f-select, .f-input {
   padding: 6px 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px;
   font-size: 0.78rem; background: rgba(255,255,255,0.15); color: #fff;

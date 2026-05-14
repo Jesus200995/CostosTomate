@@ -77,6 +77,7 @@ onMounted(load)
 .top-bar__title { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
 .top-bar__subtitle { font-size: 0.75rem; color: rgba(255,255,255,0.75); font-weight: 400; }
 .top-bar__actions { display: flex; gap: 0.5rem; position: relative; z-index: 1; }
+.top-bar__count { position: relative; z-index: 1; }
 .f-select { padding: 6px 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 0.8rem; background: rgba(255,255,255,0.15); color: #fff; }
 .f-select option { color: #333; background: #fff; }
 .loading-center { display: flex; justify-content: center; padding: 3rem; }

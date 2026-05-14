@@ -358,7 +358,9 @@ onMounted(load)
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='20' rx='9' ry='8' fill='none' stroke='%239b0000' stroke-width='1.2' opacity='0.6'/%3E%3Cline x1='16' y1='12' x2='16' y2='8' stroke='%239b0000' stroke-width='1.1' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M16,11 C13,9 10,9.5 9.5,11.5' fill='none' stroke='%239b0000' stroke-width='1' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M16,11 C19,9 22,9.5 22.5,11.5' fill='none' stroke='%239b0000' stroke-width='1' stroke-linecap='round' opacity='0.6'/%3E%3Cpath d='M16,10.5 C15.5,7.5 15,5.5 16,4.5 C17,5.5 16.5,7.5 16,10.5' fill='none' stroke='%239b0000' stroke-width='1' stroke-linecap='round' opacity='0.6'/%3E%3C/svg%3E");
   background-size: 32px 32px; background-repeat: repeat;
 }
-.page-header__left { position: relative; z-index: 1; }
+.page-header__left {
+  position: relative; z-index: 1;
+}
 .page-header__left {
   display: flex;
   align-items: center;
@@ -392,6 +394,7 @@ onMounted(load)
   margin-top: 1px;
 }
 .btn-refresh {
+  position: relative; z-index: 1;
   width: 38px;
   height: 38px;
   border-radius: 10px;

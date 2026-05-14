@@ -482,6 +482,7 @@ onMounted(load)
   background: rgba(255,255,255,0.95); color: #1a237e;
   border: none; padding: 0.5rem 1.1rem; border-radius: 12px;
   font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all .15s;
+  position: relative; z-index: 1;
 }
 .btn-add:hover { background: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 

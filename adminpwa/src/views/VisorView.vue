@@ -297,6 +297,7 @@ onBeforeUnmount(() => { clearMarkers(); map?.remove() })
 .top-bar__title { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
 .top-bar__subtitle { font-size: 0.75rem; color: rgba(255,255,255,0.75); font-weight: 400; }
 .top-bar__actions { display: flex; align-items: center; gap: 0.5rem; position: relative; z-index: 1; }
+.btn-refresh { position: relative; z-index: 1; }
 .f-select, .f-input { padding: 6px 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 0.78rem; background: rgba(255,255,255,0.15); color: #fff; }
 .f-select option { color: #333; background: #fff; }
 .btn-refresh { display: flex; align-items: center; padding: 6px; border: none; border-radius: 8px; background: rgba(255,255,255,0.2); color: #fff; cursor: pointer; }
