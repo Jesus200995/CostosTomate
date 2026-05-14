@@ -2,9 +2,13 @@
   <AdminLayout>
     <div class="perm-page">
       <div class="top-bar">
+        <div class="top-bar__pattern"></div>
         <div class="top-bar__left">
           <ShieldCheck :size="22" />
-          <span>Permisos de Usuarios</span>
+          <div>
+            <span class="top-bar__title-txt">Permisos de Usuarios</span>
+            <span class="top-bar__subtitle">Gestiona accesos y roles del equipo</span>
+          </div>
         </div>
         <button class="btn-add" @click="openCreate">
           <UserPlus :size="16" /><span>Añadir usuario</span>
@@ -463,8 +467,16 @@ onMounted(load)
   display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
   background: linear-gradient(135deg, #1a237e, #3949ab); border-radius: 14px;
   padding: 0.85rem 1.5rem; margin-bottom: 0.75rem; box-shadow: 0 4px 20px rgba(26,35,126,0.25);
+  position: relative; overflow: hidden;
 }
-.top-bar__left { display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; font-weight: 700; color: #fff; }
+.top-bar__pattern {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='20' rx='9' ry='8' fill='none' stroke='%230d1757' stroke-width='1.2' opacity='0.5'/%3E%3Cline x1='16' y1='12' x2='16' y2='8' stroke='%230d1757' stroke-width='1.1' stroke-linecap='round' opacity='0.5'/%3E%3Cpath d='M16,11 C13,9 10,9.5 9.5,11.5' fill='none' stroke='%230d1757' stroke-width='1' stroke-linecap='round' opacity='0.5'/%3E%3Cpath d='M16,11 C19,9 22,9.5 22.5,11.5' fill='none' stroke='%230d1757' stroke-width='1' stroke-linecap='round' opacity='0.5'/%3E%3Cpath d='M16,10.5 C15.5,7.5 15,5.5 16,4.5 C17,5.5 16.5,7.5 16,10.5' fill='none' stroke='%230d1757' stroke-width='1' stroke-linecap='round' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 32px 32px; background-repeat: repeat;
+}
+.top-bar__left { display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; font-weight: 700; color: #fff; position: relative; z-index: 1; }
+.top-bar__title-txt { display: block; font-size: 1.05rem; font-weight: 700; color: #fff; }
+.top-bar__subtitle { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.7); font-weight: 400; }
 .btn-add {
   display: flex; align-items: center; gap: 0.4rem;
   background: rgba(255,255,255,0.95); color: #1a237e;
